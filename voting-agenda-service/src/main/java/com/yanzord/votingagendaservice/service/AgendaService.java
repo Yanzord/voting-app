@@ -28,7 +28,7 @@ public class AgendaService {
     @HystrixCommand(
             fallbackMethod = "defaultGetAgendaById",
             ignoreExceptions = { AgendaNotFoundException.class })
-    public Agenda getAgendaById(String id) {
+    public Agenda getAgendaById(String id) throws AgendaNotFoundException {
         return Optional.ofNullable(agendaRepository.getAgendaById(id))
                 .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
     }
@@ -41,7 +41,7 @@ public class AgendaService {
     @HystrixCommand(
             fallbackMethod = "defaultOpenAgenda",
             ignoreExceptions = { AgendaNotFoundException.class })
-    public Agenda openAgenda(OpenedAgendaDTO openedAgendaDTO) {
+    public Agenda openAgenda(OpenedAgendaDTO openedAgendaDTO) throws AgendaNotFoundException {
         String id = openedAgendaDTO.getId();
         Agenda agenda = Optional.ofNullable(agendaRepository.getAgendaById(id))
                 .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
@@ -55,7 +55,7 @@ public class AgendaService {
     @HystrixCommand(
             fallbackMethod = "defaultCloseAgenda",
             ignoreExceptions = { AgendaNotFoundException.class })
-    public Agenda closeAgenda(ClosedAgendaDTO closedAgendaDTO) {
+    public Agenda closeAgenda(ClosedAgendaDTO closedAgendaDTO) throws AgendaNotFoundException {
         String id = closedAgendaDTO.getId();
         Agenda agenda = Optional.ofNullable(agendaRepository.getAgendaById(id))
                 .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));

@@ -8,6 +8,7 @@ import com.yanzord.votingagendaservice.service.AgendaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -17,11 +18,6 @@ public class AgendaController {
     @Autowired
     private AgendaService agendaService;
 
-    @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Data not found.")
-    @ExceptionHandler(AgendaNotFoundException.class)
-    public void handleNotFoundException() {
-    }
-
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public List<Agenda> getAllAgendas() {
         return agendaService.getAllAgendas();
@@ -29,7 +25,12 @@ public class AgendaController {
 
     @RequestMapping(value = "/id/{id}", method = RequestMethod.GET)
     public Agenda getAgendaById(@PathVariable("id") String id) {
-        return agendaService.getAgendaById(id);
+        try {
+            return agendaService.getAgendaById(id);
+        } catch (AgendaNotFoundException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Agenda not found.", e);
+        }
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
@@ -39,11 +40,21 @@ public class AgendaController {
 
     @RequestMapping(value = "/open", method = RequestMethod.POST)
     public Agenda openAgenda(@RequestBody OpenedAgendaDTO openedAgendaDTO) {
-        return agendaService.openAgenda(openedAgendaDTO);
+        try {
+            return agendaService.openAgenda(openedAgendaDTO);
+        } catch (AgendaNotFoundException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Agenda not found.", e);
+        }
     }
 
     @RequestMapping(value = "/close", method = RequestMethod.POST)
     public Agenda closeAgenda(@RequestBody ClosedAgendaDTO closedAgendaDTO) {
-        return agendaService.closeAgenda(closedAgendaDTO);
+        try {
+            return agendaService.closeAgenda(closedAgendaDTO);
+        } catch (AgendaNotFoundException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Agenda not found.", e);
+        }
     }
 }

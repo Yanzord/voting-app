@@ -46,7 +46,7 @@ public class AgendaServiceTest {
     }
 
     @Test
-    public void shouldGetAgendaById() {
+    public void shouldGetAgendaById() throws AgendaNotFoundException {
         Agenda expected = new Agenda("1", "New agenda.", AgendaStatus.NEW);
         Mockito.when(agendaRepository.getAgendaById("1")).thenReturn(expected);
 
@@ -79,7 +79,7 @@ public class AgendaServiceTest {
     }
 
     @Test
-    public void shouldOpenAgenda() {
+    public void shouldOpenAgenda() throws AgendaNotFoundException {
         LocalDateTime startDate = LocalDateTime.of(2020, Month.JANUARY, 1, 10, 10, 30);
 
         Agenda agenda = new Agenda("1", "Fake agenda.", AgendaStatus.NEW);
@@ -113,7 +113,7 @@ public class AgendaServiceTest {
     }
 
     @Test
-    public void shouldCloseAgenda() {
+    public void shouldCloseAgenda() throws AgendaNotFoundException {
         List<Vote> votes = new ArrayList<>();
         votes.add(new Vote("1", VoteChoice.SIM));
 
