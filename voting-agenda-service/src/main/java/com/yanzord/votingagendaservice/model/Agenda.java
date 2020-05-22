@@ -14,9 +14,9 @@ public class Agenda {
     private List<Vote> votes;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private boolean status;
+    private AgendaStatus status;
 
-    public Agenda(String id, String description, boolean status) {
+    public Agenda(String id, String description, AgendaStatus status) {
         this.id = id;
         this.description = description;
         this.status = status;
@@ -62,11 +62,11 @@ public class Agenda {
         this.endDate = endDate;
     }
 
-    public boolean isStatus() {
+    public AgendaStatus getStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(AgendaStatus status) {
         this.status = status;
     }
 }

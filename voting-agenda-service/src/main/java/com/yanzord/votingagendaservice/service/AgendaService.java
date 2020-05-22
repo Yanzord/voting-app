@@ -2,6 +2,7 @@ package com.yanzord.votingagendaservice.service;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.yanzord.votingagendaservice.exception.AgendaNotFoundException;
+import com.yanzord.votingagendaservice.model.AgendaStatus;
 import com.yanzord.votingagendaservice.model.Vote;
 import com.yanzord.votingagendaservice.model.Agenda;
 import com.yanzord.votingagendaservice.repository.AgendaRepository;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,19 +20,24 @@ public class AgendaService {
     @Autowired
     private AgendaRepository agendaRepository;
 
+    @HystrixCommand(fallbackMethod = "defaultAgendas")
+    public List<Agenda> getAllAgendas() {
+        return agendaRepository.getAllAgendas();
+    }
+
     @HystrixCommand(fallbackMethod = "defaultAgenda")
-    public Agenda getVotingAgendaById(String id) {
+    public Agenda getAgendaById(String id) {
         return Optional.ofNullable(agendaRepository.getAgendaById(id))
                 .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
     }
 
     @HystrixCommand(fallbackMethod = "defaultAgenda")
-    public Agenda addVotingAgenda(Agenda agenda) {
+    public Agenda addAgenda(Agenda agenda) {
         return agendaRepository.saveAgenda(agenda);
     }
 
     @HystrixCommand(fallbackMethod = "defaultAgenda")
-    public Agenda updateVotingAgenda(String id, LocalDateTime startDate, boolean status) {
+    public Agenda openAgenda(String id, LocalDateTime startDate, AgendaStatus status) {
         Agenda agenda = Optional.ofNullable(agendaRepository.getAgendaById(id))
                 .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
 
@@ -41,7 +48,7 @@ public class AgendaService {
     }
 
     @HystrixCommand(fallbackMethod = "defaultAgenda")
-    public Agenda updateVotingAgenda(String id, List<Vote> votes, LocalDateTime endDate, boolean status) {
+    public Agenda closeAgenda(String id, List<Vote> votes, LocalDateTime endDate, AgendaStatus status) {
         Agenda agenda = Optional.ofNullable(agendaRepository.getAgendaById(id))
                 .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
 
@@ -53,6 +60,10 @@ public class AgendaService {
     }
 
     public Agenda defaultAgenda() {
-        return new Agenda("1", "Default agenda.", false);
+        return new Agenda("1", "Default agenda.", AgendaStatus.CLOSED);
+    }
+
+    public List<Agenda> defaultAgendas() {
+        return new ArrayList<>();
     }
 }

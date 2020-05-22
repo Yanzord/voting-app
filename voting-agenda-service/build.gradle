@@ -28,6 +28,7 @@ dependencies {
             'org.springframework.cloud:spring-cloud-starter-netflix-hystrix',
             'org.springframework.cloud:spring-cloud-starter-netflix-hystrix-dashboard',
             'org.springframework.boot:spring-boot-starter-actuator',
+            'com.google.code.gson:gson:2.8.6',
             'javax.inject:javax.inject:1'
     ])
 
