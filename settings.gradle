@@ -1,3 +1,2 @@
 include 'voting-agenda-service'
 include 'voting-session-service'
-
