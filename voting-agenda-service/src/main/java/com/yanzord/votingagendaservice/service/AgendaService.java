@@ -1,22 +1,21 @@
 package com.yanzord.votingagendaservice.service;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.yanzord.votingagendaservice.dto.ClosedAgendaDTO;
+import com.yanzord.votingagendaservice.dto.OpenedAgendaDTO;
 import com.yanzord.votingagendaservice.exception.AgendaNotFoundException;
 import com.yanzord.votingagendaservice.model.AgendaStatus;
-import com.yanzord.votingagendaservice.model.Vote;
 import com.yanzord.votingagendaservice.model.Agenda;
 import com.yanzord.votingagendaservice.repository.AgendaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class AgendaService {
-
     @Autowired
     private AgendaRepository agendaRepository;
 
@@ -37,24 +36,26 @@ public class AgendaService {
     }
 
     @HystrixCommand(fallbackMethod = "defaultAgenda")
-    public Agenda openAgenda(String id, LocalDateTime startDate, AgendaStatus status) {
+    public Agenda openAgenda(OpenedAgendaDTO openedAgendaDTO) {
+        String id = openedAgendaDTO.getId();
         Agenda agenda = Optional.ofNullable(agendaRepository.getAgendaById(id))
                 .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
 
-        agenda.setStartDate(startDate);
-        agenda.setStatus(status);
+        agenda.setStartDate(openedAgendaDTO.getStartDate());
+        agenda.setStatus(openedAgendaDTO.getStatus());
 
         return agendaRepository.saveAgenda(agenda);
     }
 
     @HystrixCommand(fallbackMethod = "defaultAgenda")
-    public Agenda closeAgenda(String id, List<Vote> votes, LocalDateTime endDate, AgendaStatus status) {
+    public Agenda closeAgenda(ClosedAgendaDTO closedAgendaDTO) {
+        String id = closedAgendaDTO.getId();
         Agenda agenda = Optional.ofNullable(agendaRepository.getAgendaById(id))
                 .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
 
-        agenda.setVotes(votes);
-        agenda.setEndDate(endDate);
-        agenda.setStatus(status);
+        agenda.setVotes(closedAgendaDTO.getVotes());
+        agenda.setEndDate(closedAgendaDTO.getEndDate());
+        agenda.setStatus(closedAgendaDTO.getStatus());
 
         return agendaRepository.saveAgenda(agenda);
     }
