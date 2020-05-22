@@ -18,24 +18,29 @@ import java.util.Optional;
 public class AgendaService {
     @Autowired
     private AgendaRepository agendaRepository;
+    private final Agenda DEFAULT_AGENDA = new Agenda("1", "Default description.", AgendaStatus.CLOSED);
 
     @HystrixCommand(fallbackMethod = "defaultAgendas")
     public List<Agenda> getAllAgendas() {
         return agendaRepository.getAllAgendas();
     }
 
-    @HystrixCommand(fallbackMethod = "defaultAgenda")
+    @HystrixCommand(
+            fallbackMethod = "defaultGetAgendaById",
+            ignoreExceptions = { AgendaNotFoundException.class })
     public Agenda getAgendaById(String id) {
         return Optional.ofNullable(agendaRepository.getAgendaById(id))
                 .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
     }
 
-    @HystrixCommand(fallbackMethod = "defaultAgenda")
+    @HystrixCommand(fallbackMethod = "defaultAddAgenda")
     public Agenda addAgenda(Agenda agenda) {
         return agendaRepository.saveAgenda(agenda);
     }
 
-    @HystrixCommand(fallbackMethod = "defaultAgenda")
+    @HystrixCommand(
+            fallbackMethod = "defaultOpenAgenda",
+            ignoreExceptions = { AgendaNotFoundException.class })
     public Agenda openAgenda(OpenedAgendaDTO openedAgendaDTO) {
         String id = openedAgendaDTO.getId();
         Agenda agenda = Optional.ofNullable(agendaRepository.getAgendaById(id))
@@ -47,7 +52,9 @@ public class AgendaService {
         return agendaRepository.saveAgenda(agenda);
     }
 
-    @HystrixCommand(fallbackMethod = "defaultAgenda")
+    @HystrixCommand(
+            fallbackMethod = "defaultCloseAgenda",
+            ignoreExceptions = { AgendaNotFoundException.class })
     public Agenda closeAgenda(ClosedAgendaDTO closedAgendaDTO) {
         String id = closedAgendaDTO.getId();
         Agenda agenda = Optional.ofNullable(agendaRepository.getAgendaById(id))
@@ -60,11 +67,23 @@ public class AgendaService {
         return agendaRepository.saveAgenda(agenda);
     }
 
-    public Agenda defaultAgenda() {
-        return new Agenda("1", "Default agenda.", AgendaStatus.CLOSED);
-    }
-
     public List<Agenda> defaultAgendas() {
         return new ArrayList<>();
+    }
+
+    public Agenda defaultGetAgendaById(String id) {
+        return DEFAULT_AGENDA;
+    }
+
+    public Agenda defaultAddAgenda(Agenda agenda) {
+        return DEFAULT_AGENDA;
+    }
+
+    public Agenda defaultOpenAgenda(OpenedAgendaDTO openedAgendaDTO) {
+        return DEFAULT_AGENDA;
+    }
+
+    public Agenda defaultCloseAgenda(ClosedAgendaDTO closedAgendaDTO) {
+        return DEFAULT_AGENDA;
     }
 }
