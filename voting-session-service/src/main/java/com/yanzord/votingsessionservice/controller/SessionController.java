@@ -26,10 +26,10 @@ public class SessionController {
         }
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    private Session getSessionByAgendaId(@PathVariable("id") String id) {
+    @RequestMapping(value = "/{agendaId}", method = RequestMethod.GET)
+    private Session getSessionByAgendaId(@PathVariable("agendaId") String agendaId) {
         try {
-            return sessionService.getSessionByAgendaId(id);
+            return sessionService.getSessionByAgendaId(agendaId);
         } catch (SessionNotFoundException e) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Session not found.", e);

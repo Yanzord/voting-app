@@ -1,12 +1,26 @@
 package com.yanzord.votingsessionservice.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+
 import java.time.LocalDateTime;
 
+@RedisHash("session")
 public class Session {
+    @Id
+    private String id;
     private String agendaId;
     private long timeout;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getAgendaId() {
         return agendaId;

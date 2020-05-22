@@ -24,10 +24,11 @@ ext {
 dependencies {
     implementation([
             'org.springframework.boot:spring-boot-starter-web',
-            'org.springframework.boot:spring-boot-starter-data-mongodb',
+            'org.springframework.data:spring-data-redis',
             'org.springframework.cloud:spring-cloud-starter-netflix-hystrix',
             'org.springframework.cloud:spring-cloud-starter-netflix-hystrix-dashboard',
             'org.springframework.boot:spring-boot-starter-actuator',
+            'redis.clients:jedis:3.3.0',
             'javax.inject:javax.inject:1'
     ])
 
