@@ -1,5 +1,8 @@
 package com.yanzord.votingagendaservice.model;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class Vote {
     private String associateId;
     private VoteChoice voteChoice;

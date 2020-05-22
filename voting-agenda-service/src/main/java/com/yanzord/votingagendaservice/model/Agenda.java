@@ -7,14 +7,20 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Document
-public class VotingAgenda {
+public class Agenda {
     @Id
     private String id;
     private String description;
     private List<Vote> votes;
-    private LocalDateTime votingStart;
-    private LocalDateTime votingEnd;
-    private boolean progressStatus;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
+    private boolean status;
+
+    public Agenda(String id, String description, boolean status) {
+        this.id = id;
+        this.description = description;
+        this.status = status;
+    }
 
     public String getId() {
         return id;
@@ -40,27 +46,27 @@ public class VotingAgenda {
         this.votes = votes;
     }
 
-    public LocalDateTime getVotingStart() {
-        return votingStart;
+    public LocalDateTime getStartDate() {
+        return startDate;
     }
 
-    public void setVotingStart(LocalDateTime votingStart) {
-        this.votingStart = votingStart;
+    public void setStartDate(LocalDateTime startDate) {
+        this.startDate = startDate;
     }
 
-    public LocalDateTime getVotingEnd() {
-        return votingEnd;
+    public LocalDateTime getEndDate() {
+        return endDate;
     }
 
-    public void setVotingEnd(LocalDateTime votingEnd) {
-        this.votingEnd = votingEnd;
+    public void setEndDate(LocalDateTime endDate) {
+        this.endDate = endDate;
     }
 
-    public boolean isProgressStatus() {
-        return progressStatus;
+    public boolean isStatus() {
+        return status;
     }
 
-    public void setProgressStatus(boolean progressStatus) {
-        this.progressStatus = progressStatus;
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 }
