@@ -1,8 +1,8 @@
-package com.yanzord.votingsessionservice.dto;
+package com.yanzord.votingsessionservice.model;
 
 import java.time.LocalDateTime;
 
-public class SessionDTO {
+public class Session {
     private String agendaId;
     private long timeout;
     private LocalDateTime startDate;

@@ -1,9 +1,14 @@
 package com.yanzord.votingsessionservice.controller;
 
-import com.yanzord.votingsessionservice.dto.SessionDTO;
+import com.yanzord.votingsessionservice.exception.ClosedSessionException;
+import com.yanzord.votingsessionservice.model.Session;
+import com.yanzord.votingsessionservice.exception.OpenedSessionException;
+import com.yanzord.votingsessionservice.exception.SessionNotFoundException;
 import com.yanzord.votingsessionservice.service.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/session")
@@ -12,12 +17,25 @@ public class SessionController {
     private SessionService sessionService;
 
     @RequestMapping(value = "/open", method = RequestMethod.POST)
-    private SessionDTO openSession(@RequestBody SessionDTO sessionDTO) {
-        return sessionService.openSession(sessionDTO);
+    private Session openSession(@RequestBody Session session) {
+        try {
+            return sessionService.openSession(session);
+        } catch (OpenedSessionException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Session is already opened.", e);
+        }
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    private SessionDTO getSessionByAgendaId(@PathVariable("id") String id) {
-        return sessionService.getSessionByAgendaId(id);
+    private Session getSessionByAgendaId(@PathVariable("id") String id) {
+        try {
+            return sessionService.getSessionByAgendaId(id);
+        } catch (SessionNotFoundException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Session not found.", e);
+        } catch (ClosedSessionException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Voting timeout expired, session is currently closed.", e);
+        }
     }
 }
