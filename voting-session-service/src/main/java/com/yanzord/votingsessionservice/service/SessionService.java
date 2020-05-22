@@ -19,22 +19,25 @@ public class SessionService {
     private SessionRepository sessionRepository;
 
     public Session openSession(Session session) throws OpenedSessionException {
-        List<Session> openedSessions = new ArrayList<>();
-        sessionRepository.findAll().forEach(openedSessions::add);
+        List<Session> sessions = new ArrayList<>();
+        sessionRepository.findAll().forEach(sessions::add);
 
-        if(openedSessions.stream().anyMatch(s -> s.getAgendaId().equals(session.getAgendaId()))) {
+        if(sessions.stream().anyMatch(s -> s.getAgendaId().equals(session.getAgendaId()))) {
             throw new OpenedSessionException("Session already opened, can't open it again.");
         }
 
         LocalDateTime endDate = session.getStartDate().plusMinutes(session.getTimeout());
         session.setEndDate(endDate);
-        sessionRepository.save(session);
-
-        return session;
+        return sessionRepository.save(session);
     }
 
     public Session getSessionByAgendaId(String agendaId) throws SessionNotFoundException, ClosedSessionException {
-        Session session = Optional.ofNullable(sessionRepository.findByAgendaId(agendaId))
+        List<Session> sessions = new ArrayList<>();
+        sessionRepository.findAll().forEach(sessions::add);
+
+        Session session = sessions.stream()
+                .filter(s -> s.getAgendaId().equals(agendaId))
+                .findAny()
                 .orElseThrow(() -> new SessionNotFoundException("Session not found for agenda ID: " + agendaId));
 
         if(LocalDateTime.now().isAfter(session.getEndDate())) {
