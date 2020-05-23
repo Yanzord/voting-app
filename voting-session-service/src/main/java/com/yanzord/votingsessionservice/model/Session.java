@@ -14,6 +14,8 @@ public class Session {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
+    public Session() {}
+
     public Session(String agendaId, long timeout, LocalDateTime startDate) {
         this.agendaId = agendaId;
         this.timeout = timeout;

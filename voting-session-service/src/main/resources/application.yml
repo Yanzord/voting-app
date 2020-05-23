@@ -3,3 +3,9 @@ spring:
     name: voting-agenda-service
   redis:
     url: redis://localhost:6379
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream

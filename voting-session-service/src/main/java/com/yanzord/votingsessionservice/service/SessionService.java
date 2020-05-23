@@ -1,5 +1,6 @@
 package com.yanzord.votingsessionservice.service;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.yanzord.votingsessionservice.model.Session;
 import com.yanzord.votingsessionservice.exception.ClosedSessionException;
 import com.yanzord.votingsessionservice.exception.OpenedSessionException;
@@ -17,6 +18,9 @@ public class SessionService {
     @Autowired
     private SessionRepository sessionRepository;
 
+    @HystrixCommand(
+            fallbackMethod = "defaultOpenedSession",
+            ignoreExceptions = { OpenedSessionException.class })
     public Session openSession(Session session) throws OpenedSessionException {
         List<Session> sessions = new ArrayList<>();
         sessionRepository.findAll().forEach(sessions::add);
@@ -30,6 +34,9 @@ public class SessionService {
         return sessionRepository.save(session);
     }
 
+    @HystrixCommand(
+            fallbackMethod = "defaultGetSessionByAgendaId",
+            ignoreExceptions = { OpenedSessionException.class, SessionNotFoundException.class })
     public Session getSessionByAgendaId(String agendaId) throws SessionNotFoundException, ClosedSessionException {
         List<Session> sessions = new ArrayList<>();
         sessionRepository.findAll().forEach(sessions::add);
@@ -45,5 +52,13 @@ public class SessionService {
         }
 
         return session;
+    }
+
+    public Session defaultOpenedSession(Session session) {
+        return new Session();
+    }
+
+    public Session defaultGetSessionByAgendaId(String agendaId) {
+        return new Session();
     }
 }
