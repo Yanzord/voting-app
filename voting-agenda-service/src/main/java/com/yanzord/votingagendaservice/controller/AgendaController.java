@@ -17,6 +17,7 @@ import java.util.List;
 public class AgendaController {
     @Autowired
     private AgendaService agendaService;
+    private static final String NOT_FOUND_MESSAGE = "Agenda not found.";
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public List<Agenda> getAllAgendas() {
@@ -29,7 +30,7 @@ public class AgendaController {
             return agendaService.getAgendaById(id);
         } catch (AgendaNotFoundException e) {
             throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Agenda not found.", e);
+                    HttpStatus.NOT_FOUND, NOT_FOUND_MESSAGE, e);
         }
     }
 
@@ -44,7 +45,7 @@ public class AgendaController {
             return agendaService.openAgenda(openedAgendaDTO);
         } catch (AgendaNotFoundException e) {
             throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Agenda not found.", e);
+                    HttpStatus.NOT_FOUND, NOT_FOUND_MESSAGE, e);
         }
     }
 
@@ -54,7 +55,7 @@ public class AgendaController {
             return agendaService.closeAgenda(closedAgendaDTO);
         } catch (AgendaNotFoundException e) {
             throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Agenda not found.", e);
+                    HttpStatus.NOT_FOUND, NOT_FOUND_MESSAGE, e);
         }
     }
 }

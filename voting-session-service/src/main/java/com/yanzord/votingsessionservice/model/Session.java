@@ -14,6 +14,12 @@ public class Session {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
+    public Session(String agendaId, long timeout, LocalDateTime startDate) {
+        this.agendaId = agendaId;
+        this.timeout = timeout;
+        this.startDate = startDate;
+    }
+
     public String getId() {
         return id;
     }
