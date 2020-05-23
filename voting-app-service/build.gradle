@@ -26,6 +26,8 @@ dependencies {
             'org.springframework.boot:spring-boot-starter-web',
             'org.springframework.cloud:spring-cloud-starter-netflix-hystrix',
             'org.springframework.cloud:spring-cloud-starter-netflix-hystrix-dashboard',
+            'org.springframework.cloud:spring-cloud-starter-openfeign',
+            'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client',
             'org.springframework.boot:spring-boot-starter-actuator',
             'javax.inject:javax.inject:1'
     ])
