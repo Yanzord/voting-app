@@ -1,7 +1,5 @@
 package com.yanzord.votingagendaservice.controller;
 
-import com.yanzord.votingagendaservice.dto.ClosedAgendaDTO;
-import com.yanzord.votingagendaservice.dto.OpenedAgendaDTO;
 import com.yanzord.votingagendaservice.exception.AgendaNotFoundException;
 import com.yanzord.votingagendaservice.model.Agenda;
 import com.yanzord.votingagendaservice.service.AgendaService;
@@ -40,9 +38,9 @@ public class AgendaController {
     }
 
     @RequestMapping(value = "/open", method = RequestMethod.POST)
-    public Agenda openAgenda(@RequestBody OpenedAgendaDTO openedAgendaDTO) {
+    public Agenda openAgenda(@RequestBody Agenda openedAgenda) {
         try {
-            return agendaService.openAgenda(openedAgendaDTO);
+            return agendaService.openAgenda(openedAgenda);
         } catch (AgendaNotFoundException e) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, NOT_FOUND_MESSAGE, e);
@@ -50,9 +48,9 @@ public class AgendaController {
     }
 
     @RequestMapping(value = "/close", method = RequestMethod.POST)
-    public Agenda closeAgenda(@RequestBody ClosedAgendaDTO closedAgendaDTO) {
+    public Agenda closeAgenda(@RequestBody Agenda closedAgenda) {
         try {
-            return agendaService.closeAgenda(closedAgendaDTO);
+            return agendaService.closeAgenda(closedAgenda);
         } catch (AgendaNotFoundException e) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, NOT_FOUND_MESSAGE, e);

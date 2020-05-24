@@ -1,8 +1,6 @@
 package com.yanzord.votingagendaservice.service;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.yanzord.votingagendaservice.dto.ClosedAgendaDTO;
-import com.yanzord.votingagendaservice.dto.OpenedAgendaDTO;
 import com.yanzord.votingagendaservice.exception.AgendaNotFoundException;
 import com.yanzord.votingagendaservice.model.AgendaStatus;
 import com.yanzord.votingagendaservice.model.Agenda;
@@ -41,13 +39,13 @@ public class AgendaService {
     @HystrixCommand(
             fallbackMethod = "defaultOpenAgenda",
             ignoreExceptions = { AgendaNotFoundException.class })
-    public Agenda openAgenda(OpenedAgendaDTO openedAgendaDTO) throws AgendaNotFoundException {
-        String id = openedAgendaDTO.getId();
+    public Agenda openAgenda(Agenda openedAgenda) throws AgendaNotFoundException {
+        String id = openedAgenda.getId();
         Agenda agenda = Optional.ofNullable(agendaRepository.getAgendaById(id))
                 .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
 
-        agenda.setStartDate(openedAgendaDTO.getStartDate());
-        agenda.setStatus(openedAgendaDTO.getStatus());
+        agenda.setStartDate(openedAgenda.getStartDate());
+        agenda.setStatus(openedAgenda.getStatus());
 
         return agendaRepository.saveAgenda(agenda);
     }
@@ -55,14 +53,14 @@ public class AgendaService {
     @HystrixCommand(
             fallbackMethod = "defaultCloseAgenda",
             ignoreExceptions = { AgendaNotFoundException.class })
-    public Agenda closeAgenda(ClosedAgendaDTO closedAgendaDTO) throws AgendaNotFoundException {
-        String id = closedAgendaDTO.getId();
+    public Agenda closeAgenda(Agenda closedAgenda) throws AgendaNotFoundException {
+        String id = closedAgenda.getId();
         Agenda agenda = Optional.ofNullable(agendaRepository.getAgendaById(id))
                 .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
 
-        agenda.setVotes(closedAgendaDTO.getVotes());
-        agenda.setEndDate(closedAgendaDTO.getEndDate());
-        agenda.setStatus(closedAgendaDTO.getStatus());
+        agenda.setVotes(closedAgenda.getVotes());
+        agenda.setEndDate(closedAgenda.getEndDate());
+        agenda.setStatus(closedAgenda.getStatus());
 
         return agendaRepository.saveAgenda(agenda);
     }
@@ -79,11 +77,11 @@ public class AgendaService {
         return DEFAULT_AGENDA;
     }
 
-    public Agenda defaultOpenAgenda(OpenedAgendaDTO openedAgendaDTO) {
+    public Agenda defaultOpenAgenda(Agenda openedAgenda) {
         return DEFAULT_AGENDA;
     }
 
-    public Agenda defaultCloseAgenda(ClosedAgendaDTO closedAgendaDTO) {
+    public Agenda defaultCloseAgenda(Agenda closedAgenda) {
         return DEFAULT_AGENDA;
     }
 }

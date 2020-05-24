@@ -22,6 +22,19 @@ public class Agenda {
         this.status = status;
     }
 
+    public Agenda(String id, LocalDateTime startDate, AgendaStatus status) {
+        this.id = id;
+        this.startDate = startDate;
+        this.status = status;
+    }
+
+    public Agenda(String id, List<Vote> votes, LocalDateTime endDate, AgendaStatus status) {
+        this.id = id;
+        this.votes = votes;
+        this.endDate = endDate;
+        this.status = status;
+    }
+
     public String getId() {
         return id;
     }
