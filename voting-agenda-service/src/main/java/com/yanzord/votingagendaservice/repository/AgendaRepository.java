@@ -25,7 +25,7 @@ public class AgendaRepository {
         return mongoTemplate.findOne(query, Agenda.class);
     }
 
-    public Agenda saveAgenda(Agenda agenda){
+    public Agenda save(Agenda agenda){
         return mongoTemplate.save(agenda);
     }
 }

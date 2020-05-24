@@ -26,7 +26,7 @@ public class AgendaServiceTest {
     @Test
     public void shouldRegisterAgenda() {
         Agenda expected = new Agenda("1", "New agenda.", AgendaStatus.NEW);
-        Mockito.when(agendaRepository.saveAgenda(expected)).thenReturn(expected);
+        Mockito.when(agendaRepository.save(expected)).thenReturn(expected);
 
         Agenda actual = agendaService.registerAgenda(expected);
 
@@ -87,7 +87,7 @@ public class AgendaServiceTest {
         updatedAgenda.setResult(result);
 
         Mockito.when(agendaRepository.getAgendaById(updatedAgenda.getId())).thenReturn(agenda);
-        Mockito.when(agendaRepository.saveAgenda(agenda)).thenReturn(agenda);
+        Mockito.when(agendaRepository.save(agenda)).thenReturn(agenda);
 
         Agenda actual = agendaService.updateAgenda(updatedAgenda);
 

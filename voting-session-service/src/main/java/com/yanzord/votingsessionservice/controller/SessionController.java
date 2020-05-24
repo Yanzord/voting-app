@@ -1,5 +1,6 @@
 package com.yanzord.votingsessionservice.controller;
 
+import com.yanzord.votingsessionservice.exception.ClosedSessionException;
 import com.yanzord.votingsessionservice.model.Session;
 import com.yanzord.votingsessionservice.exception.OpenedSessionException;
 import com.yanzord.votingsessionservice.exception.SessionNotFoundException;
@@ -25,13 +26,16 @@ public class SessionController {
         } catch (OpenedSessionException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Session is already opened.", e);
+        } catch (ClosedSessionException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Session is closed", e);
         }
     }
 
-    @RequestMapping(value = "/{sessionId}", method = RequestMethod.PATCH)
-    private Session registerVote(@RequestBody Vote vote, @PathParam("sessionId") String sessionId) {
+    @RequestMapping(value = "/{agendaId}", method = RequestMethod.PATCH)
+    private Session registerVote(@RequestBody Vote vote, @PathParam("agendaId") String agendaId) {
         try {
-            return sessionService.registerVote(vote, sessionId);
+            return sessionService.registerVote(vote, agendaId);
         } catch (SessionNotFoundException e) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Session not found.", e);

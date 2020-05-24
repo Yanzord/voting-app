@@ -1,26 +1,27 @@
 package com.yanzord.votingsessionservice.model;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RedisHash("session")
+@Document
 public class Session {
     @Id
     private String id;
     private String agendaId;
-    private long timeout;
+    private long duration;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private List<Vote> votes;
+    private SessionStatus status;
 
     public Session() {}
 
-    public Session(String agendaId, long timeout, LocalDateTime startDate) {
+    public Session(String agendaId, long duration, LocalDateTime startDate) {
         this.agendaId = agendaId;
-        this.timeout = timeout;
+        this.duration = duration;
         this.startDate = startDate;
     }
 
@@ -40,12 +41,12 @@ public class Session {
         this.agendaId = agendaId;
     }
 
-    public long getTimeout() {
-        return timeout;
+    public long getDuration() {
+        return duration;
     }
 
-    public void setTimeout(long timeout) {
-        this.timeout = timeout;
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 
     public LocalDateTime getStartDate() {
@@ -70,5 +71,13 @@ public class Session {
 
     public void setVotes(List<Vote> votes) {
         this.votes = votes;
+    }
+
+    public SessionStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(SessionStatus status) {
+        this.status = status;
     }
 }

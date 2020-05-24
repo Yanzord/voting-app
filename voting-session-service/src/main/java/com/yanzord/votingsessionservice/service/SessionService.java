@@ -1,9 +1,11 @@
 package com.yanzord.votingsessionservice.service;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.yanzord.votingsessionservice.exception.ClosedSessionException;
 import com.yanzord.votingsessionservice.model.Session;
 import com.yanzord.votingsessionservice.exception.OpenedSessionException;
 import com.yanzord.votingsessionservice.exception.SessionNotFoundException;
+import com.yanzord.votingsessionservice.model.SessionStatus;
 import com.yanzord.votingsessionservice.model.Vote;
 import com.yanzord.votingsessionservice.repository.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,16 +24,23 @@ public class SessionService {
     @HystrixCommand(
             fallbackMethod = "defaultOpenedSession",
             ignoreExceptions = { OpenedSessionException.class })
-    public Session openSession(Session session) throws OpenedSessionException {
-        List<Session> sessions = new ArrayList<>();
-        sessionRepository.findAll().forEach(sessions::add);
+    public Session openSession(Session session) throws OpenedSessionException, ClosedSessionException {
+        Optional<Session> optionalSession = sessionRepository.getSessionByAgendaId(session.getAgendaId());
 
-        if(sessions.stream().anyMatch(s -> s.getAgendaId().equals(session.getAgendaId()))) {
-            throw new OpenedSessionException("Session already opened, can't open it again.");
+        if(optionalSession.isPresent()) {
+            switch(session.getStatus()) {
+                case OPENED: {
+                    throw new OpenedSessionException("Session is already opened. Session ID: " + session.getId());
+                }
+                case CLOSED: {
+                    throw new ClosedSessionException("Session is closed. Session ID: " + session.getId());
+                }
+            }
         }
 
-        LocalDateTime endDate = session.getStartDate().plusMinutes(session.getTimeout());
+        LocalDateTime endDate = session.getStartDate().plusMinutes(session.getDuration());
         session.setEndDate(endDate);
+        session.setStatus(SessionStatus.OPENED);
 
         return sessionRepository.save(session);
     }
@@ -39,13 +48,13 @@ public class SessionService {
     @HystrixCommand(
             fallbackMethod = "defaultRegisterVote",
             ignoreExceptions = { SessionNotFoundException.class })
-    public Session registerVote(Vote vote, String sessionId) throws SessionNotFoundException {
-        Session session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new SessionNotFoundException("Session not found. ID: " + sessionId));
+    public Session registerVote(Vote vote, String agendaId) throws SessionNotFoundException {
+        Session session = sessionRepository.getSessionByAgendaId(agendaId)
+                .orElseThrow(() -> new SessionNotFoundException("Session not found for Agenda ID: " + agendaId));
 
         if(LocalDateTime.now().isAfter(session.getEndDate())) {
-            sessionRepository.deleteById(session.getId());
-            return session;
+            session.setStatus(SessionStatus.CLOSED);
+            return sessionRepository.save(session);
         }
 
         List<Vote> votes = Optional.ofNullable(session.getVotes())
@@ -53,9 +62,7 @@ public class SessionService {
 
         votes.add(vote);
         session.setVotes(votes);
-        sessionRepository.save(session);
-
-        return session;
+        return sessionRepository.save(session);
     }
 
     public Session defaultOpenedSession(Session session) {
