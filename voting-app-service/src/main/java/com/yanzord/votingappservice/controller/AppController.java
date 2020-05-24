@@ -17,13 +17,13 @@ public class AppController {
     @Autowired
     private AppService appService;
 
-    @RequestMapping(value = "/agenda/register", method = RequestMethod.POST)
+    @RequestMapping(value = "/agenda", method = RequestMethod.POST)
     public AgendaDTO registerAgenda(@RequestBody AgendaDTO agendaDTO) {
         return appService.registerAgenda(agendaDTO);
     }
 
-    @RequestMapping(value = "/session/open", method = RequestMethod.POST)
-    public SessionDTO openSession(SessionDTO sessionDTO) {
+    @RequestMapping(value = "/session", method = RequestMethod.POST)
+    public SessionDTO openSession(@RequestBody SessionDTO sessionDTO) {
         return appService.openSession(sessionDTO);
     }
 }

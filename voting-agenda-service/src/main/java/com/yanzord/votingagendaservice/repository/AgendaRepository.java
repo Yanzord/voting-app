@@ -11,9 +11,8 @@ import java.util.List;
 
 @Repository
 public class AgendaRepository {
-
     @Autowired
-    MongoTemplate mongoTemplate;
+    private MongoTemplate mongoTemplate;
 
     public List<Agenda> getAllAgendas() {
         return mongoTemplate.findAll(Agenda.class);

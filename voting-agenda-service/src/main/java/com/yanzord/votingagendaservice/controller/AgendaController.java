@@ -37,20 +37,10 @@ public class AgendaController {
         }
     }
 
-    @RequestMapping(value = "/open", method = RequestMethod.POST)
-    public Agenda openAgenda(@RequestBody Agenda openedAgenda) {
+    @RequestMapping(value = "/", method = RequestMethod.PATCH)
+    public Agenda updateAgenda(@RequestBody Agenda updatedAgenda) {
         try {
-            return agendaService.openAgenda(openedAgenda);
-        } catch (AgendaNotFoundException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, NOT_FOUND_MESSAGE, e);
-        }
-    }
-
-    @RequestMapping(value = "/close", method = RequestMethod.POST)
-    public Agenda closeAgenda(@RequestBody Agenda closedAgenda) {
-        try {
-            return agendaService.closeAgenda(closedAgenda);
+            return agendaService.updateAgenda(updatedAgenda);
         } catch (AgendaNotFoundException e) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, NOT_FOUND_MESSAGE, e);

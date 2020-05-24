@@ -5,6 +5,7 @@ import com.yanzord.votingsessionservice.model.Session;
 import com.yanzord.votingsessionservice.exception.ClosedSessionException;
 import com.yanzord.votingsessionservice.exception.OpenedSessionException;
 import com.yanzord.votingsessionservice.exception.SessionNotFoundException;
+import com.yanzord.votingsessionservice.model.Vote;
 import com.yanzord.votingsessionservice.repository.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SessionService {
@@ -31,25 +33,28 @@ public class SessionService {
 
         LocalDateTime endDate = session.getStartDate().plusMinutes(session.getTimeout());
         session.setEndDate(endDate);
+
         return sessionRepository.save(session);
     }
 
     @HystrixCommand(
-            fallbackMethod = "defaultGetSessionByAgendaId",
+            fallbackMethod = "defaultRegisterVote",
             ignoreExceptions = { OpenedSessionException.class, SessionNotFoundException.class })
-    public Session getSessionByAgendaId(String agendaId) throws SessionNotFoundException, ClosedSessionException {
-        List<Session> sessions = new ArrayList<>();
-        sessionRepository.findAll().forEach(sessions::add);
-
-        Session session = sessions.stream()
-                .filter(s -> s.getAgendaId().equals(agendaId))
-                .findAny()
-                .orElseThrow(() -> new SessionNotFoundException("Session not found for agenda ID: " + agendaId));
+    public Session registerVote(Vote vote, String sessionId) throws SessionNotFoundException, ClosedSessionException {
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new SessionNotFoundException("Session not found. ID: " + sessionId));
 
         if(LocalDateTime.now().isAfter(session.getEndDate())) {
             sessionRepository.deleteById(session.getId());
             throw new ClosedSessionException("Voting timeout expired, session is currently closed.");
         }
+
+        List<Vote> votes = Optional.ofNullable(session.getVotes())
+                .orElse(new ArrayList<>());
+
+        votes.add(vote);
+        session.setVotes(votes);
+        sessionRepository.save(session);
 
         return session;
     }
@@ -58,7 +63,7 @@ public class SessionService {
         return new Session();
     }
 
-    public Session defaultGetSessionByAgendaId(String agendaId) {
+    public Session defaultRegisterVote(Vote vote, String sessionId) {
         return new Session();
     }
 }

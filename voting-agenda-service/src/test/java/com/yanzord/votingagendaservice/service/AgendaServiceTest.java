@@ -89,7 +89,7 @@ public class AgendaServiceTest {
         Mockito.when(agendaRepository.getAgendaById(openedAgenda.getId())).thenReturn(agenda);
         Mockito.when(agendaRepository.saveAgenda(agenda)).thenReturn(agenda);
 
-        Agenda actual = agendaService.openAgenda(openedAgenda);
+        Agenda actual = agendaService.updateAgenda(openedAgenda);
 
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getDescription(), actual.getDescription());
@@ -105,7 +105,7 @@ public class AgendaServiceTest {
 
         Mockito.when(agendaRepository.getAgendaById(openedAgenda.getId())).thenReturn(null);
 
-        Exception exception = assertThrows(AgendaNotFoundException.class, () -> agendaService.openAgenda(openedAgenda));
+        Exception exception = assertThrows(AgendaNotFoundException.class, () -> agendaService.updateAgenda(openedAgenda));
 
         assertNotNull(exception);
     }

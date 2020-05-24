@@ -39,28 +39,21 @@ public class AgendaService {
     @HystrixCommand(
             fallbackMethod = "defaultOpenAgenda",
             ignoreExceptions = { AgendaNotFoundException.class })
-    public Agenda openAgenda(Agenda openedAgenda) throws AgendaNotFoundException {
-        String id = openedAgenda.getId();
+    public Agenda updateAgenda(Agenda updatedAgenda) throws AgendaNotFoundException {
+        String id = updatedAgenda.getId();
         Agenda agenda = Optional.ofNullable(agendaRepository.getAgendaById(id))
                 .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
 
-        agenda.setStartDate(openedAgenda.getStartDate());
-        agenda.setStatus(openedAgenda.getStatus());
+        if(updatedAgenda.getStatus().equals(AgendaStatus.OPENED)) {
+            agenda.setStartDate(updatedAgenda.getStartDate());
+            agenda.setStatus(updatedAgenda.getStatus());
 
-        return agendaRepository.saveAgenda(agenda);
-    }
+            return agendaRepository.saveAgenda(agenda);
+        }
 
-    @HystrixCommand(
-            fallbackMethod = "defaultCloseAgenda",
-            ignoreExceptions = { AgendaNotFoundException.class })
-    public Agenda closeAgenda(Agenda closedAgenda) throws AgendaNotFoundException {
-        String id = closedAgenda.getId();
-        Agenda agenda = Optional.ofNullable(agendaRepository.getAgendaById(id))
-                .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
-
-        agenda.setVotes(closedAgenda.getVotes());
-        agenda.setEndDate(closedAgenda.getEndDate());
-        agenda.setStatus(closedAgenda.getStatus());
+        agenda.setVotes(updatedAgenda.getVotes());
+        agenda.setEndDate(updatedAgenda.getEndDate());
+        agenda.setStatus(updatedAgenda.getStatus());
 
         return agendaRepository.saveAgenda(agenda);
     }
@@ -77,11 +70,7 @@ public class AgendaService {
         return DEFAULT_AGENDA;
     }
 
-    public Agenda defaultOpenAgenda(Agenda openedAgenda) {
-        return DEFAULT_AGENDA;
-    }
-
-    public Agenda defaultCloseAgenda(Agenda closedAgenda) {
+    public Agenda defaultUpdateAgenda(Agenda updatedAgenda) {
         return DEFAULT_AGENDA;
     }
 }

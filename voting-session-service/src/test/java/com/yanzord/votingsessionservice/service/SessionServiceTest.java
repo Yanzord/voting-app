@@ -1,10 +1,11 @@
 package com.yanzord.votingsessionservice.service;
 
-import com.fasterxml.jackson.databind.util.ArrayIterator;
 import com.yanzord.votingsessionservice.exception.ClosedSessionException;
 import com.yanzord.votingsessionservice.exception.OpenedSessionException;
 import com.yanzord.votingsessionservice.exception.SessionNotFoundException;
 import com.yanzord.votingsessionservice.model.Session;
+import com.yanzord.votingsessionservice.model.Vote;
+import com.yanzord.votingsessionservice.model.VoteChoice;
 import com.yanzord.votingsessionservice.repository.SessionRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,6 +18,7 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -75,58 +77,64 @@ public class SessionServiceTest {
     }
 
     @Test
-    public void shouldGetSessionByAgendaId() throws ClosedSessionException, SessionNotFoundException {
+    public void shouldRegisterVote() throws ClosedSessionException, SessionNotFoundException {
         String fakeId = "1";
         long fakeTimeout = 5;
         LocalDateTime fakeStartDate = LocalDateTime.now();
+        Vote vote = new Vote(fakeId, "123", VoteChoice.SIM);
+        List<Vote> votes = new ArrayList<>();
+        votes.add(vote);
+
+        Session sessionFound = new Session(fakeId, fakeTimeout, fakeStartDate);
+        sessionFound.setId(fakeId);
+        sessionFound.setEndDate(fakeStartDate.plusMinutes(fakeTimeout));
 
         Session expected = new Session(fakeId, fakeTimeout, fakeStartDate);
         expected.setId(fakeId);
         expected.setEndDate(fakeStartDate.plusMinutes(fakeTimeout));
+        expected.setVotes(votes);
 
-        List<Session> sessions = new ArrayList<>();
-        sessions.add(expected);
+        Mockito.when(sessionRepository.findById(fakeId)).thenReturn(Optional.of(sessionFound));
 
-        Mockito.when(sessionRepository.findAll()).thenReturn(sessions);
-
-        Session actual = sessionService.getSessionByAgendaId(fakeId);
+        Session actual = sessionService.registerVote(vote, fakeId);
 
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getAgendaId(), actual.getAgendaId());
         assertEquals(expected.getTimeout(), actual.getTimeout());
         assertEquals(expected.getStartDate(), actual.getStartDate());
         assertEquals(expected.getEndDate(), actual.getEndDate());
+        assertEquals(expected.getVotes().size(), actual.getVotes().size());
+        assertEquals(expected.getVotes().get(0).getAssociateCPF(), actual.getVotes().get(0).getAssociateCPF());
     }
 
     @Test
-    public void shouldNotGetSessionByAgendaIdWhenSessionIsNotFound() {
+    public void shouldNotRegisterVoteWhenSessionIsNotFound() {
         String fakeId = "1";
+        Vote vote = new Vote(fakeId, "123", VoteChoice.SIM);
 
-        Mockito.when(sessionRepository.findAll()).thenReturn(Collections.emptyList());
+        Mockito.when(sessionRepository.findById(fakeId)).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(SessionNotFoundException.class,
-                () -> sessionService.getSessionByAgendaId(fakeId));
+                () -> sessionService.registerVote(vote, fakeId));
 
         assertNotNull(exception);
     }
 
     @Test
-    public void shouldNotGetSessionByIdWhenSessionIsTimedOut() {
+    public void shouldNotRegisterVoteWhenSessionIsTimedOut() {
         String fakeId = "1";
         long fakeTimeout = 2;
         LocalDateTime fakeStartDate = LocalDateTime.now().minusMinutes(5);
+        Vote vote = new Vote(fakeId, "123", VoteChoice.SIM);
 
-        Session expected = new Session(fakeId, fakeTimeout, fakeStartDate);
-        expected.setId(fakeId);
-        expected.setEndDate(fakeStartDate.plusMinutes(fakeTimeout));
+        Session fakeSession = new Session(fakeId, fakeTimeout, fakeStartDate);
+        fakeSession.setId(fakeId);
+        fakeSession.setEndDate(fakeStartDate.plusMinutes(fakeTimeout));
 
-        List<Session> sessions = new ArrayList<>();
-        sessions.add(expected);
-
-        Mockito.when(sessionRepository.findAll()).thenReturn(sessions);
+        Mockito.when(sessionRepository.findById(fakeId)).thenReturn(Optional.of(fakeSession));
 
         Exception exception = assertThrows(ClosedSessionException.class,
-                () -> sessionService.getSessionByAgendaId(fakeId));
+                () -> sessionService.registerVote(vote, fakeId));
 
         assertNotNull(exception);
     }
