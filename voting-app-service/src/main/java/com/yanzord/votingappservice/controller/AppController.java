@@ -14,8 +14,8 @@ public class AppController {
     @Autowired
     private AppService appService;
 
-    @RequestMapping(value = "/register/", method = RequestMethod.POST)
-    public AgendaDTO createAgenda(@RequestBody AgendaDTO agendaDTO) {
-        return appService.createAgenda(agendaDTO);
+    @RequestMapping(value = "/agenda/register", method = RequestMethod.POST)
+    public AgendaDTO registerAgenda(@RequestBody AgendaDTO agendaDTO) {
+        return appService.registerAgenda(agendaDTO);
     }
 }

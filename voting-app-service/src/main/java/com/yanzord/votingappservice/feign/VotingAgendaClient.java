@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 @FeignClient("voting-agenda-service")
 public interface VotingAgendaClient {
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(value = "/agenda/", method = RequestMethod.GET)
     AgendaDTO addAgenda(AgendaDTO agendaDTO);
 }
