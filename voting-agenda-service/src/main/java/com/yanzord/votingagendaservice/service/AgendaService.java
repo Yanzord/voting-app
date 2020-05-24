@@ -16,7 +16,7 @@ import java.util.Optional;
 public class AgendaService {
     @Autowired
     private AgendaRepository agendaRepository;
-    private final Agenda DEFAULT_AGENDA = new Agenda("1", "Default description.", AgendaStatus.CLOSED);
+    private final Agenda DEFAULT_AGENDA = new Agenda("1", "Default description.", AgendaStatus.FINISHED);
 
     @HystrixCommand(fallbackMethod = "defaultAgendas")
     public List<Agenda> getAllAgendas() {
@@ -44,15 +44,7 @@ public class AgendaService {
         Agenda agenda = Optional.ofNullable(agendaRepository.getAgendaById(id))
                 .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
 
-        if(updatedAgenda.getStatus().equals(AgendaStatus.OPENED)) {
-            agenda.setStartDate(updatedAgenda.getStartDate());
-            agenda.setStatus(updatedAgenda.getStatus());
-
-            return agendaRepository.saveAgenda(agenda);
-        }
-
-        agenda.setVotes(updatedAgenda.getVotes());
-        agenda.setEndDate(updatedAgenda.getEndDate());
+        agenda.setResult(updatedAgenda.getResult());
         agenda.setStatus(updatedAgenda.getStatus());
 
         return agendaRepository.saveAgenda(agenda);

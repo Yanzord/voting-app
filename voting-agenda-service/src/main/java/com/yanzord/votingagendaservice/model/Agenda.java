@@ -3,35 +3,17 @@ package com.yanzord.votingagendaservice.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Document
 public class Agenda {
     @Id
     private String id;
     private String description;
-    private List<Vote> votes;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private Result result;
     private AgendaStatus status;
 
     public Agenda(String id, String description, AgendaStatus status) {
         this.id = id;
         this.description = description;
-        this.status = status;
-    }
-
-    public Agenda(String id, LocalDateTime startDate, AgendaStatus status) {
-        this.id = id;
-        this.startDate = startDate;
-        this.status = status;
-    }
-
-    public Agenda(String id, List<Vote> votes, LocalDateTime endDate, AgendaStatus status) {
-        this.id = id;
-        this.votes = votes;
-        this.endDate = endDate;
         this.status = status;
     }
 
@@ -51,28 +33,12 @@ public class Agenda {
         this.description = description;
     }
 
-    public List<Vote> getVotes() {
-        return votes;
+    public Result getResult() {
+        return result;
     }
 
-    public void setVotes(List<Vote> votes) {
-        this.votes = votes;
-    }
-
-    public LocalDateTime getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDateTime startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalDateTime getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(LocalDateTime endDate) {
-        this.endDate = endDate;
+    public void setResult(Result result) {
+        this.result = result;
     }
 
     public AgendaStatus getStatus() {

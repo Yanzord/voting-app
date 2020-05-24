@@ -1,10 +1,7 @@
 package com.yanzord.votingagendaservice.service;
 
 import com.yanzord.votingagendaservice.exception.AgendaNotFoundException;
-import com.yanzord.votingagendaservice.model.Agenda;
-import com.yanzord.votingagendaservice.model.AgendaStatus;
-import com.yanzord.votingagendaservice.model.Vote;
-import com.yanzord.votingagendaservice.model.VoteChoice;
+import com.yanzord.votingagendaservice.model.*;
 import com.yanzord.votingagendaservice.repository.AgendaRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -12,8 +9,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,8 +39,8 @@ public class AgendaServiceTest {
     public void shouldGetAllAgendas() {
         List<Agenda> expected = new ArrayList<>();
         expected.add(new Agenda("1", "New agenda.", AgendaStatus.NEW));
-        expected.add(new Agenda("2", "Opened agenda.", AgendaStatus.OPENED));
-        expected.add(new Agenda("3", "Closed agenda.", AgendaStatus.CLOSED));
+        expected.add(new Agenda("2", "Finished agenda.", AgendaStatus.FINISHED));
+        expected.add(new Agenda("3", "Another new agenda.", AgendaStatus.NEW));
 
         Mockito.when(agendaRepository.getAllAgendas()).thenReturn(expected);
 
@@ -69,74 +64,53 @@ public class AgendaServiceTest {
 
     @Test
     public void shouldNotReturnAgendaWhenAgendaIsNotFound() {
-        Mockito.when(agendaRepository.getAgendaById("1")).thenReturn(null);
+        String fakeId = "1";
 
-        Exception exception = assertThrows(AgendaNotFoundException.class, () -> agendaService.getAgendaById("1"));
+        Mockito.when(agendaRepository.getAgendaById(fakeId)).thenReturn(null);
+
+        Exception exception = assertThrows(AgendaNotFoundException.class, () -> agendaService.getAgendaById(fakeId));
 
         assertNotNull(exception);
     }
 
     @Test
-    public void shouldUpdateAgendaToOpened() throws AgendaNotFoundException {
-        LocalDateTime startDate = LocalDateTime.of(2020, Month.JANUARY, 1, 10, 10, 30);
+    public void shouldUpdateAgendaToFinished() throws AgendaNotFoundException {
+        String fakeId = "1";
+        String fakeDescription = "Fake agenda.";
+        Agenda agenda = new Agenda(fakeId, fakeDescription, AgendaStatus.NEW);
 
-        Agenda agenda = new Agenda("1", "Fake agenda.", AgendaStatus.NEW);
-        Agenda expected = new Agenda("1", "Fake agenda.", AgendaStatus.OPENED);
-        expected.setStartDate(startDate);
+        Result result = new Result(5, 3, "SIM");
+        Agenda expected = new Agenda(fakeId, fakeDescription, AgendaStatus.FINISHED);
+        expected.setResult(result);
 
-        Agenda openedAgenda = new Agenda("1", startDate, AgendaStatus.OPENED);
+        Agenda updatedAgenda = new Agenda(fakeId, fakeDescription, AgendaStatus.FINISHED);
+        updatedAgenda.setResult(result);
 
-        Mockito.when(agendaRepository.getAgendaById(openedAgenda.getId())).thenReturn(agenda);
+        Mockito.when(agendaRepository.getAgendaById(updatedAgenda.getId())).thenReturn(agenda);
         Mockito.when(agendaRepository.saveAgenda(agenda)).thenReturn(agenda);
 
-        Agenda actual = agendaService.updateAgenda(openedAgenda);
+        Agenda actual = agendaService.updateAgenda(updatedAgenda);
 
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getDescription(), actual.getDescription());
-        assertEquals(expected.getStartDate(), actual.getStartDate());
         assertEquals(expected.getStatus(), actual.getStatus());
-    }
-
-    @Test
-    public void shouldUpdateAgendaToClosed() throws AgendaNotFoundException {
-        List<Vote> votes = new ArrayList<>();
-        votes.add(new Vote("1", "123", VoteChoice.SIM));
-
-        LocalDateTime startDate = LocalDateTime.of(2020, Month.JANUARY, 1, 10, 10, 30);
-        LocalDateTime endDate = LocalDateTime.of(2020, Month.JANUARY, 1, 11, 10, 30);
-
-        Agenda expected = new Agenda("1", "Fake agenda.", AgendaStatus.CLOSED);
-        expected.setVotes(votes);
-        expected.setStartDate(startDate);
-        expected.setEndDate(endDate);
-
-        Agenda agenda = new Agenda("1", "Fake agenda.", AgendaStatus.OPENED);
-        agenda.setStartDate(startDate);
-
-        Agenda closedAgenda = new Agenda("1", votes, endDate, AgendaStatus.CLOSED);
-
-        Mockito.when(agendaRepository.getAgendaById(closedAgenda.getId())).thenReturn(agenda);
-        Mockito.when(agendaRepository.saveAgenda(agenda)).thenReturn(agenda);
-
-        Agenda actual = agendaService.updateAgenda(closedAgenda);
-
-        assertEquals(expected.getId(), actual.getId());
-        assertEquals(expected.getDescription(), actual.getDescription());
-        assertEquals(expected.getVotes().size(), actual.getVotes().size());
-        assertEquals(expected.getStartDate(), actual.getStartDate());
-        assertEquals(expected.getEndDate(), actual.getEndDate());
-        assertEquals(expected.getStatus(), actual.getStatus());
+        assertEquals(expected.getResult().toString(), actual.getResult().toString());
     }
 
     @Test
     public void shouldNotUpdateAgendaWhenAgendaIsNotFound() {
-        Agenda openedAgenda = new Agenda("1",
-                LocalDateTime.of(2020, Month.JANUARY, 1, 10, 10, 30),
-                AgendaStatus.OPENED);
+        Result result = new Result(5, 3, "SIM");
 
-        Mockito.when(agendaRepository.getAgendaById(openedAgenda.getId())).thenReturn(null);
+        Agenda agenda = new Agenda("1",
+                "Default agenda.",
+                AgendaStatus.NEW);
 
-        Exception exception = assertThrows(AgendaNotFoundException.class, () -> agendaService.updateAgenda(openedAgenda));
+        agenda.setResult(result);
+        agenda.setStatus(AgendaStatus.FINISHED);
+
+        Mockito.when(agendaRepository.getAgendaById(agenda.getId())).thenReturn(null);
+
+        Exception exception = assertThrows(AgendaNotFoundException.class, () -> agendaService.updateAgenda(agenda));
 
         assertNotNull(exception);
     }
