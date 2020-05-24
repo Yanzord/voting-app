@@ -1,6 +1,7 @@
 package com.yanzord.votingappservice.controller;
 
 import com.yanzord.votingappservice.dto.AgendaDTO;
+import com.yanzord.votingappservice.dto.SessionDTO;
 import com.yanzord.votingappservice.service.AppService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,8 +22,8 @@ public class AppController {
         return appService.registerAgenda(agendaDTO);
     }
 
-    @RequestMapping(value = "/agenda", method = RequestMethod.GET)
-    public List<AgendaDTO> getAllAgendas() {
-        return appService.getAllAgendas();
+    @RequestMapping(value = "/session/open", method = RequestMethod.POST)
+    public SessionDTO openSession(SessionDTO sessionDTO) {
+        return appService.openSession(sessionDTO);
     }
 }

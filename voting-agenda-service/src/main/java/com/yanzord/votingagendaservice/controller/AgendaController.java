@@ -27,7 +27,7 @@ public class AgendaController {
         return agendaService.getAllAgendas();
     }
 
-    @RequestMapping(value = "/id/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public Agenda getAgendaById(@PathVariable("id") String id) {
         try {
             return agendaService.getAgendaById(id);

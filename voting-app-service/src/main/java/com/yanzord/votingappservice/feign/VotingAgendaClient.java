@@ -14,4 +14,7 @@ public interface VotingAgendaClient {
 
     @RequestMapping(value = "/agenda/", method = RequestMethod.GET)
     List<AgendaDTO> getAllAgendas();
+
+    @RequestMapping(value = "/agenda/{id}", method = RequestMethod.GET)
+    AgendaDTO getAgendaById(String id);
 }

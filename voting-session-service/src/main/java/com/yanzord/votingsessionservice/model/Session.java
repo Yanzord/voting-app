@@ -1,9 +1,11 @@
 package com.yanzord.votingsessionservice.model;
 
+import com.yanzord.votingsessionservice.dto.VoteDTO;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RedisHash("session")
 public class Session {
@@ -13,6 +15,7 @@ public class Session {
     private long timeout;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private List<VoteDTO> votes;
 
     public Session() {}
 
@@ -60,5 +63,13 @@ public class Session {
 
     public void setEndDate(LocalDateTime endDate) {
         this.endDate = endDate;
+    }
+
+    public List<VoteDTO> getVotes() {
+        return votes;
+    }
+
+    public void setVotes(List<VoteDTO> votes) {
+        this.votes = votes;
     }
 }
