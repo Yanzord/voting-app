@@ -1,6 +1,5 @@
 package com.yanzord.votingsessionservice.service;
 
-import com.yanzord.votingsessionservice.exception.ClosedSessionException;
 import com.yanzord.votingsessionservice.exception.OpenedSessionException;
 import com.yanzord.votingsessionservice.exception.SessionNotFoundException;
 import com.yanzord.votingsessionservice.model.Session;
@@ -77,7 +76,7 @@ public class SessionServiceTest {
     }
 
     @Test
-    public void shouldRegisterVote() throws ClosedSessionException, SessionNotFoundException {
+    public void shouldRegisterVote() throws SessionNotFoundException {
         String fakeId = "1";
         long fakeTimeout = 5;
         LocalDateTime fakeStartDate = LocalDateTime.now();
