@@ -17,6 +17,11 @@ public class AgendaController {
     private AgendaService agendaService;
     private static final String NOT_FOUND_MESSAGE = "Agenda not found.";
 
+    @RequestMapping(value = "/", method = RequestMethod.POST)
+    public Agenda registerAgenda(@RequestBody Agenda agenda) {
+        return agendaService.registerAgenda(agenda);
+    }
+
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public List<Agenda> getAllAgendas() {
         return agendaService.getAllAgendas();
@@ -30,11 +35,6 @@ public class AgendaController {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, NOT_FOUND_MESSAGE, e);
         }
-    }
-
-    @RequestMapping(value = "/", method = RequestMethod.POST)
-    public Agenda addAgenda(@RequestBody Agenda agenda) {
-        return agendaService.addAgenda(agenda);
     }
 
     @RequestMapping(value = "/open", method = RequestMethod.POST)

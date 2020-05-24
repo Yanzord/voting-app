@@ -32,7 +32,7 @@ public class AgendaService {
     }
 
     @HystrixCommand(fallbackMethod = "defaultAddAgenda")
-    public Agenda addAgenda(Agenda agenda) {
+    public Agenda registerAgenda(Agenda agenda) {
         return agendaRepository.saveAgenda(agenda);
     }
 

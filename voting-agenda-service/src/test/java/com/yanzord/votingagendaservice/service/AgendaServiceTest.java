@@ -29,6 +29,18 @@ public class AgendaServiceTest {
     private AgendaService agendaService;
 
     @Test
+    public void shouldRegisterAgenda() {
+        Agenda expected = new Agenda("1", "New agenda.", AgendaStatus.NEW);
+        Mockito.when(agendaRepository.saveAgenda(expected)).thenReturn(expected);
+
+        Agenda actual = agendaService.registerAgenda(expected);
+
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getDescription(), actual.getDescription());
+        assertEquals(expected.getStatus(), actual.getStatus());
+    }
+
+    @Test
     public void shouldGetAllAgendas() {
         List<Agenda> expected = new ArrayList<>();
         expected.add(new Agenda("1", "New agenda.", AgendaStatus.NEW));
@@ -65,18 +77,6 @@ public class AgendaServiceTest {
     }
 
     @Test
-    public void shouldAddAgenda() {
-        Agenda expected = new Agenda("1", "New agenda.", AgendaStatus.NEW);
-        Mockito.when(agendaRepository.saveAgenda(expected)).thenReturn(expected);
-
-        Agenda actual = agendaService.addAgenda(expected);
-
-        assertEquals(expected.getId(), actual.getId());
-        assertEquals(expected.getDescription(), actual.getDescription());
-        assertEquals(expected.getStatus(), actual.getStatus());
-    }
-
-    @Test
     public void shouldOpenAgenda() throws AgendaNotFoundException {
         LocalDateTime startDate = LocalDateTime.of(2020, Month.JANUARY, 1, 10, 10, 30);
 
@@ -99,11 +99,11 @@ public class AgendaServiceTest {
 
     @Test
     public void shouldNotOpenAgendaWhenAgendaIsNotFound() {
-        Mockito.when(agendaRepository.getAgendaById("1")).thenReturn(null);
-
         Agenda openedAgenda = new Agenda("1",
                 LocalDateTime.of(2020, Month.JANUARY, 1, 10, 10, 30),
                 AgendaStatus.OPENED);
+
+        Mockito.when(agendaRepository.getAgendaById(openedAgenda.getId())).thenReturn(null);
 
         Exception exception = assertThrows(AgendaNotFoundException.class, () -> agendaService.openAgenda(openedAgenda));
 
@@ -113,7 +113,7 @@ public class AgendaServiceTest {
     @Test
     public void shouldCloseAgenda() throws AgendaNotFoundException {
         List<Vote> votes = new ArrayList<>();
-        votes.add(new Vote("1", VoteChoice.SIM));
+        votes.add(new Vote("1", "123", VoteChoice.SIM));
 
         LocalDateTime startDate = LocalDateTime.of(2020, Month.JANUARY, 1, 10, 10, 30);
         LocalDateTime endDate = LocalDateTime.of(2020, Month.JANUARY, 1, 11, 10, 30);
@@ -144,13 +144,13 @@ public class AgendaServiceTest {
     @Test
     public void shouldNotCloseAgendaWhenAgendaIsNotFound() {
         List<Vote> votes = new ArrayList<>();
-        votes.add(new Vote("1", VoteChoice.SIM));
+        votes.add(new Vote("1", "123", VoteChoice.SIM));
 
         LocalDateTime endDate = LocalDateTime.of(2020, Month.JANUARY, 1, 11, 10, 30);
 
         Agenda closedAgenda = new Agenda("1", votes, endDate, AgendaStatus.CLOSED);
 
-        Mockito.when(agendaRepository.getAgendaById("1")).thenReturn(null);
+        Mockito.when(agendaRepository.getAgendaById(closedAgenda.getId())).thenReturn(null);
 
         Exception exception = assertThrows(AgendaNotFoundException.class, () -> agendaService.closeAgenda(closedAgenda));
 
