@@ -1,8 +1,24 @@
 spring:
   application:
-    name: voting-agenda-service
+    name: voting-session-service
   redis:
     url: redis://localhost:6379
+
+server:
+  port: 8082
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    metadataMap:
+      instanceId: ${spring.application.name}:${server.port}
+
+endpoints:
+  restart:
+    enabled: true
 
 management:
   endpoints:
