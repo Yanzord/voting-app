@@ -39,14 +39,14 @@ public class SessionService {
 
     @HystrixCommand(
             fallbackMethod = "defaultRegisterVote",
-            ignoreExceptions = { OpenedSessionException.class, SessionNotFoundException.class })
-    public Session registerVote(Vote vote, String sessionId) throws SessionNotFoundException, ClosedSessionException {
+            ignoreExceptions = { SessionNotFoundException.class })
+    public Session registerVote(Vote vote, String sessionId) throws SessionNotFoundException {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new SessionNotFoundException("Session not found. ID: " + sessionId));
 
         if(LocalDateTime.now().isAfter(session.getEndDate())) {
             sessionRepository.deleteById(session.getId());
-            throw new ClosedSessionException("Voting timeout expired, session is currently closed.");
+            return session;
         }
 
         List<Vote> votes = Optional.ofNullable(session.getVotes())

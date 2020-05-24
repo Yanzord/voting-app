@@ -121,21 +121,20 @@ public class SessionServiceTest {
     }
 
     @Test
-    public void shouldNotRegisterVoteWhenSessionIsTimedOut() {
+    public void shouldNotRegisterVoteWhenSessionIsTimedOut() throws SessionNotFoundException {
         String fakeId = "1";
         long fakeTimeout = 2;
         LocalDateTime fakeStartDate = LocalDateTime.now().minusMinutes(5);
         Vote vote = new Vote(fakeId, "123", VoteChoice.SIM);
 
-        Session fakeSession = new Session(fakeId, fakeTimeout, fakeStartDate);
-        fakeSession.setId(fakeId);
-        fakeSession.setEndDate(fakeStartDate.plusMinutes(fakeTimeout));
+        Session expected = new Session(fakeId, fakeTimeout, fakeStartDate);
+        expected.setId(fakeId);
+        expected.setEndDate(fakeStartDate.plusMinutes(fakeTimeout));
 
-        Mockito.when(sessionRepository.findById(fakeId)).thenReturn(Optional.of(fakeSession));
+        Mockito.when(sessionRepository.findById(fakeId)).thenReturn(Optional.of(expected));
 
-        Exception exception = assertThrows(ClosedSessionException.class,
-                () -> sessionService.registerVote(vote, fakeId));
+        Session actual = sessionService.registerVote(vote, fakeId);
 
-        assertNotNull(exception);
+        assertNull(actual.getVotes());
     }
 }

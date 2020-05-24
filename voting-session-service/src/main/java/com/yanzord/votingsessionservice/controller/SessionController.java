@@ -36,9 +36,6 @@ public class SessionController {
         } catch (SessionNotFoundException e) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Session not found.", e);
-        } catch (ClosedSessionException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Voting timeout expired, session is currently closed.", e);
         }
     }
 }
