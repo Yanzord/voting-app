@@ -79,12 +79,12 @@ public class AgendaServiceTest {
         String fakeDescription = "Fake agenda.";
         Agenda agenda = new Agenda(fakeId, fakeDescription, AgendaStatus.NEW);
 
-        Result result = new Result(5, 3, "SIM");
+        AgendaResult agendaResult = new AgendaResult(5, 3, "SIM");
         Agenda expected = new Agenda(fakeId, fakeDescription, AgendaStatus.FINISHED);
-        expected.setResult(result);
+        expected.setAgendaResult(agendaResult);
 
         Agenda updatedAgenda = new Agenda(fakeId, fakeDescription, AgendaStatus.FINISHED);
-        updatedAgenda.setResult(result);
+        updatedAgenda.setAgendaResult(agendaResult);
 
         Mockito.when(agendaRepository.getAgendaById(updatedAgenda.getId())).thenReturn(agenda);
         Mockito.when(agendaRepository.save(agenda)).thenReturn(agenda);
@@ -94,18 +94,18 @@ public class AgendaServiceTest {
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getStatus(), actual.getStatus());
-        assertEquals(expected.getResult().toString(), actual.getResult().toString());
+        assertEquals(expected.getAgendaResult().toString(), actual.getAgendaResult().toString());
     }
 
     @Test
     public void shouldNotUpdateAgendaWhenAgendaIsNotFound() {
-        Result result = new Result(5, 3, "SIM");
+        AgendaResult agendaResult = new AgendaResult(5, 3, "SIM");
 
         Agenda agenda = new Agenda("1",
                 "Default agenda.",
                 AgendaStatus.NEW);
 
-        agenda.setResult(result);
+        agenda.setAgendaResult(agendaResult);
         agenda.setStatus(AgendaStatus.FINISHED);
 
         Mockito.when(agendaRepository.getAgendaById(agenda.getId())).thenReturn(null);

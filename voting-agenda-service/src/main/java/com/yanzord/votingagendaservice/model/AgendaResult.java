@@ -1,11 +1,11 @@
 package com.yanzord.votingagendaservice.model;
 
-public class Result {
+public class AgendaResult {
     private long totalUpVotes;
     private long totalDownVotes;
     private String result;
 
-    public Result(long totalUpVotes, long totalDownVotes, String result) {
+    public AgendaResult(long totalUpVotes, long totalDownVotes, String result) {
         this.totalUpVotes = totalUpVotes;
         this.totalDownVotes = totalDownVotes;
         this.result = result;
@@ -43,6 +43,4 @@ public class Result {
                 ", result='" + result + '\'' +
                 '}';
     }
-
-
 }

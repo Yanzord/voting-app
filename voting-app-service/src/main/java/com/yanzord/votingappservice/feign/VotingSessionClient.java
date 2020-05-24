@@ -11,6 +11,6 @@ public interface VotingSessionClient {
     @RequestMapping(value = "/session/", method = RequestMethod.POST)
     SessionDTO openSession(SessionDTO sessionDTO);
 
-    @RequestMapping(value = "/session/{sessionId}", method = RequestMethod.PATCH)
-    SessionDTO registerVote(VoteDTO voteDTO, String sessionId);
+    @RequestMapping(value = "/session/{agendaId}", method = RequestMethod.PATCH)
+    SessionDTO registerVote(VoteDTO voteDTO, String agendaId);
 }

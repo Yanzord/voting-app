@@ -2,6 +2,7 @@ package com.yanzord.votingsessionservice.service;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.yanzord.votingsessionservice.exception.ClosedSessionException;
+import com.yanzord.votingsessionservice.exception.SessionClosedException;
 import com.yanzord.votingsessionservice.model.Session;
 import com.yanzord.votingsessionservice.exception.OpenedSessionException;
 import com.yanzord.votingsessionservice.exception.SessionNotFoundException;

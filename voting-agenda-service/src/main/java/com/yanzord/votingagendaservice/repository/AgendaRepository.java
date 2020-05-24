@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class AgendaRepository {
@@ -18,11 +19,11 @@ public class AgendaRepository {
         return mongoTemplate.findAll(Agenda.class);
     }
 
-    public Agenda getAgendaById(String id) {
+    public Optional<Agenda> getAgendaById(String id) {
         Query query = new Query();
         query.addCriteria(Criteria.where("id").is(id));
 
-        return mongoTemplate.findOne(query, Agenda.class);
+        return Optional.ofNullable(mongoTemplate.findOne(query, Agenda.class));
     }
 
     public Agenda save(Agenda agenda){

@@ -1,10 +1,11 @@
 package com.yanzord.votingappservice.controller;
 
 import com.yanzord.votingappservice.dto.AgendaDTO;
+import com.yanzord.votingappservice.dto.AgendaResult;
 import com.yanzord.votingappservice.dto.SessionDTO;
 import com.yanzord.votingappservice.dto.VoteDTO;
-import com.yanzord.votingappservice.exception.ClosedAgendaException;
-import com.yanzord.votingappservice.exception.OpenedAgendaException;
+import com.yanzord.votingappservice.exception.ClosedSessionException;
+import com.yanzord.votingappservice.exception.FinishedAgendaException;
 import com.yanzord.votingappservice.exception.UnknownAgendaStatusException;
 import com.yanzord.votingappservice.service.AppService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.websocket.server.PathParam;
-import java.util.List;
 
 @RestController
 @RequestMapping("/app")
@@ -33,12 +33,9 @@ public class AppController {
     public SessionDTO openSession(@RequestBody SessionDTO session) {
         try {
             return appService.openSession(session);
-        } catch (OpenedAgendaException e) {
+        } catch (FinishedAgendaException e) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Agenda is already opened.", e);
-        } catch (ClosedAgendaException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Agenda is closed.", e);
+                    HttpStatus.BAD_REQUEST, "Agenda is finished, can't open session.", e);
         } catch (UnknownAgendaStatusException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Unknown agenda status.", e);
@@ -47,11 +44,19 @@ public class AppController {
 
     @RequestMapping(value = "/session/{agendaId}", method = RequestMethod.POST)
     public SessionDTO registerVote(@RequestBody VoteDTO vote, @PathParam("agendaId") String agendaId) {
-        return appService.registerVote(vote, agendaId);
+        try {
+            return appService.registerVote(vote, agendaId);
+        } catch (ClosedSessionException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Session is finished, can't register vote.", e);
+        } catch (FinishedAgendaException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Agenda is finished, can't register vote.", e);
+        }
     }
 
     @RequestMapping(value = "/result/{agendaId}", method = RequestMethod.GET)
-    public AgendaDTO getAgendaResult(@PathParam("agendaId") String agendaId) {
+    public AgendaResult getAgendaResult(@PathParam("agendaId") String agendaId) {
         return appService.getAgendaResult(agendaId);
     }
 }

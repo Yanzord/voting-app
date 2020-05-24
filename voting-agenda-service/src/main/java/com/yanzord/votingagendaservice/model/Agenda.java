@@ -8,7 +8,7 @@ public class Agenda {
     @Id
     private String id;
     private String description;
-    private Result result;
+    private AgendaResult agendaResult;
     private AgendaStatus status;
 
     public Agenda(String id, String description, AgendaStatus status) {
@@ -33,12 +33,12 @@ public class Agenda {
         this.description = description;
     }
 
-    public Result getResult() {
-        return result;
+    public AgendaResult getAgendaResult() {
+        return agendaResult;
     }
 
-    public void setResult(Result result) {
-        this.result = result;
+    public void setAgendaResult(AgendaResult agendaResult) {
+        this.agendaResult = agendaResult;
     }
 
     public AgendaStatus getStatus() {

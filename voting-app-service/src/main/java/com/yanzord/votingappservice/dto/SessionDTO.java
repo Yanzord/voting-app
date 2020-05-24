@@ -6,16 +6,17 @@ import java.util.List;
 public class SessionDTO {
     private String id;
     private String agendaId;
-    private long timeout;
+    private long duration;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private List<VoteDTO> votes;
+    private SessionStatus status;
 
     public SessionDTO() {}
 
-    public SessionDTO(String agendaId, long timeout, LocalDateTime startDate) {
+    public SessionDTO(String agendaId, long duration, LocalDateTime startDate) {
         this.agendaId = agendaId;
-        this.timeout = timeout;
+        this.duration = duration;
         this.startDate = startDate;
     }
 
@@ -35,12 +36,12 @@ public class SessionDTO {
         this.agendaId = agendaId;
     }
 
-    public long getTimeout() {
-        return timeout;
+    public long getDuration() {
+        return duration;
     }
 
-    public void setTimeout(long timeout) {
-        this.timeout = timeout;
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 
     public LocalDateTime getStartDate() {
@@ -65,5 +66,13 @@ public class SessionDTO {
 
     public void setVotes(List<VoteDTO> votes) {
         this.votes = votes;
+    }
+
+    public SessionStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(SessionStatus status) {
+        this.status = status;
     }
 }

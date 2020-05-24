@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AgendaService {
@@ -27,12 +26,13 @@ public class AgendaService {
             fallbackMethod = "defaultGetAgendaById",
             ignoreExceptions = { AgendaNotFoundException.class })
     public Agenda getAgendaById(String id) throws AgendaNotFoundException {
-        return Optional.ofNullable(agendaRepository.getAgendaById(id))
+        return agendaRepository.getAgendaById(id)
                 .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
     }
 
     @HystrixCommand(fallbackMethod = "defaultAddAgenda")
     public Agenda registerAgenda(Agenda agenda) {
+        agenda.setStatus(AgendaStatus.NEW);
         return agendaRepository.save(agenda);
     }
 
@@ -41,10 +41,10 @@ public class AgendaService {
             ignoreExceptions = { AgendaNotFoundException.class })
     public Agenda updateAgenda(Agenda updatedAgenda) throws AgendaNotFoundException {
         String id = updatedAgenda.getId();
-        Agenda agenda = Optional.ofNullable(agendaRepository.getAgendaById(id))
+        Agenda agenda = agendaRepository.getAgendaById(id)
                 .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
 
-        agenda.setResult(updatedAgenda.getResult());
+        agenda.setAgendaResult(updatedAgenda.getAgendaResult());
         agenda.setStatus(updatedAgenda.getStatus());
 
         return agendaRepository.save(agenda);
