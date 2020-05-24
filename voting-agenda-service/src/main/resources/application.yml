@@ -1,9 +1,27 @@
 spring:
+  application:
+    name: voting-agenda-service
   data:
     mongodb:
       host: localhost
       port: 27017
       database: voting_agenda_db
+
+server:
+  port: 8081
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    metadataMap:
+      instanceId: ${spring.application.name}:${server.port}
+
+endpoints:
+  restart:
+    enabled: true
 
 management:
   endpoints:
