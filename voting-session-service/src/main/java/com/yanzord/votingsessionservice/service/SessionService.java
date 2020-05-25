@@ -2,7 +2,6 @@ package com.yanzord.votingsessionservice.service;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.yanzord.votingsessionservice.exception.ClosedSessionException;
-import com.yanzord.votingsessionservice.exception.SessionClosedException;
 import com.yanzord.votingsessionservice.model.Session;
 import com.yanzord.votingsessionservice.exception.OpenedSessionException;
 import com.yanzord.votingsessionservice.exception.SessionNotFoundException;
@@ -23,13 +22,13 @@ public class SessionService {
     private SessionRepository sessionRepository;
 
     @HystrixCommand(
-            fallbackMethod = "defaultOpenedSession",
-            ignoreExceptions = { OpenedSessionException.class })
+            fallbackMethod = "defaultOpenSession",
+            ignoreExceptions = { OpenedSessionException.class, ClosedSessionException.class })
     public Session openSession(Session session) throws OpenedSessionException, ClosedSessionException {
         Optional<Session> optionalSession = sessionRepository.getSessionByAgendaId(session.getAgendaId());
 
         if(optionalSession.isPresent()) {
-            switch(session.getStatus()) {
+            switch(optionalSession.get().getStatus()) {
                 case OPENED: {
                     throw new OpenedSessionException("Session is already opened. Session ID: " + session.getId());
                 }
@@ -66,7 +65,7 @@ public class SessionService {
         return sessionRepository.save(session);
     }
 
-    public Session defaultOpenedSession(Session session) {
+    public Session defaultOpenSession(Session session) {
         return new Session();
     }
 

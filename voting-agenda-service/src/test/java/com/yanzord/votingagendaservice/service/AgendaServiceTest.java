@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,24 +37,9 @@ public class AgendaServiceTest {
     }
 
     @Test
-    public void shouldGetAllAgendas() {
-        List<Agenda> expected = new ArrayList<>();
-        expected.add(new Agenda("1", "New agenda.", AgendaStatus.NEW));
-        expected.add(new Agenda("2", "Finished agenda.", AgendaStatus.FINISHED));
-        expected.add(new Agenda("3", "Another new agenda.", AgendaStatus.NEW));
-
-        Mockito.when(agendaRepository.getAllAgendas()).thenReturn(expected);
-
-        List<Agenda> actual = agendaService.getAllAgendas();
-
-        assertEquals(expected, actual);
-        assertEquals(expected.size(), actual.size());
-    }
-
-    @Test
     public void shouldGetAgendaById() throws AgendaNotFoundException {
         Agenda expected = new Agenda("1", "New agenda.", AgendaStatus.NEW);
-        Mockito.when(agendaRepository.getAgendaById("1")).thenReturn(expected);
+        Mockito.when(agendaRepository.getAgendaById("1")).thenReturn(Optional.of(expected));
 
         Agenda actual = agendaService.getAgendaById("1");
 
@@ -86,7 +72,7 @@ public class AgendaServiceTest {
         Agenda updatedAgenda = new Agenda(fakeId, fakeDescription, AgendaStatus.FINISHED);
         updatedAgenda.setAgendaResult(agendaResult);
 
-        Mockito.when(agendaRepository.getAgendaById(updatedAgenda.getId())).thenReturn(agenda);
+        Mockito.when(agendaRepository.getAgendaById(updatedAgenda.getId())).thenReturn(Optional.of(agenda));
         Mockito.when(agendaRepository.save(agenda)).thenReturn(agenda);
 
         Agenda actual = agendaService.updateAgenda(updatedAgenda);

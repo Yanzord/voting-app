@@ -11,6 +11,8 @@ public class Agenda {
     private AgendaResult agendaResult;
     private AgendaStatus status;
 
+    public Agenda(){}
+
     public Agenda(String id, String description, AgendaStatus status) {
         this.id = id;
         this.description = description;

@@ -5,6 +5,8 @@ public class AgendaResult {
     private long totalDownVotes;
     private String result;
 
+    public AgendaResult(){}
+
     public AgendaResult(long totalUpVotes, long totalDownVotes, String result) {
         this.totalUpVotes = totalUpVotes;
         this.totalDownVotes = totalDownVotes;

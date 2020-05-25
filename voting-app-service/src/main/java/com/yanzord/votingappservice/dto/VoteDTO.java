@@ -5,6 +5,8 @@ public class VoteDTO {
     private String associateCPF;
     private VoteChoice voteChoice;
 
+    public VoteDTO() {}
+
     public VoteDTO(String associateId, String associateCPF, VoteChoice voteChoice) {
         this.associateId = associateId;
         this.associateCPF = associateCPF;

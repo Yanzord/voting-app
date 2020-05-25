@@ -9,6 +9,7 @@ import com.yanzord.votingappservice.feign.VotingSessionClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -27,6 +28,9 @@ public class AppService {
 
         switch(agenda.getStatus()) {
             case NEW: {
+                LocalDateTime startDate = LocalDateTime.now();
+                session.setStartDate(startDate);
+
                 return votingSessionClient.openSession(session);
             }
             case FINISHED: {

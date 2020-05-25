@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/agenda")
 public class AgendaController {
@@ -22,11 +20,6 @@ public class AgendaController {
         return agendaService.registerAgenda(agenda);
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
-    public List<Agenda> getAllAgendas() {
-        return agendaService.getAllAgendas();
-    }
-
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public Agenda getAgendaById(@PathVariable("id") String id) {
         try {
@@ -37,7 +30,7 @@ public class AgendaController {
         }
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/", method = RequestMethod.PUT)
     public Agenda updateAgenda(@RequestBody Agenda updatedAgenda) {
         try {
             return agendaService.updateAgenda(updatedAgenda);

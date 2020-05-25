@@ -1,7 +1,6 @@
 package com.yanzord.votingsessionservice.controller;
 
 import com.yanzord.votingsessionservice.exception.ClosedSessionException;
-import com.yanzord.votingsessionservice.exception.SessionClosedException;
 import com.yanzord.votingsessionservice.model.Session;
 import com.yanzord.votingsessionservice.exception.OpenedSessionException;
 import com.yanzord.votingsessionservice.exception.SessionNotFoundException;
@@ -11,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
-import javax.websocket.server.PathParam;
 
 @RestController
 @RequestMapping("/session")
@@ -33,8 +30,8 @@ public class SessionController {
         }
     }
 
-    @RequestMapping(value = "/{agendaId}", method = RequestMethod.PATCH)
-    private Session registerVote(@RequestBody Vote vote, @PathParam("agendaId") String agendaId) {
+    @RequestMapping(value = "/{agendaId}", method = RequestMethod.POST)
+    private Session registerVote(@RequestBody Vote vote, @PathVariable("agendaId") String agendaId) {
         try {
             return sessionService.registerVote(vote, agendaId);
         } catch (SessionNotFoundException e) {

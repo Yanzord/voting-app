@@ -7,17 +7,12 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
 public class AgendaRepository {
     @Autowired
     private MongoTemplate mongoTemplate;
-
-    public List<Agenda> getAllAgendas() {
-        return mongoTemplate.findAll(Agenda.class);
-    }
 
     public Optional<Agenda> getAgendaById(String id) {
         Query query = new Query();

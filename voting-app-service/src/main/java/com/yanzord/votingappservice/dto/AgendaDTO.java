@@ -6,6 +6,8 @@ public class AgendaDTO {
     private AgendaResult agendaResult;
     private AgendaStatus status;
 
+    public AgendaDTO() {}
+
     public AgendaDTO(String id, String description, AgendaStatus status) {
         this.id = id;
         this.description = description;

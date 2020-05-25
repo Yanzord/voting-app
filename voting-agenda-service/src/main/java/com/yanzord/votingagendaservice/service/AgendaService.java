@@ -17,11 +17,6 @@ public class AgendaService {
     private AgendaRepository agendaRepository;
     private final Agenda DEFAULT_AGENDA = new Agenda("1", "Default description.", AgendaStatus.FINISHED);
 
-    @HystrixCommand(fallbackMethod = "defaultAgendas")
-    public List<Agenda> getAllAgendas() {
-        return agendaRepository.getAllAgendas();
-    }
-
     @HystrixCommand(
             fallbackMethod = "defaultGetAgendaById",
             ignoreExceptions = { AgendaNotFoundException.class })

@@ -10,13 +10,8 @@ import com.yanzord.votingappservice.exception.UnknownAgendaStatusException;
 import com.yanzord.votingappservice.service.AppService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
-import javax.websocket.server.PathParam;
 
 @RestController
 @RequestMapping("/app")
@@ -43,7 +38,7 @@ public class AppController {
     }
 
     @RequestMapping(value = "/session/{agendaId}", method = RequestMethod.POST)
-    public SessionDTO registerVote(@RequestBody VoteDTO vote, @PathParam("agendaId") String agendaId) {
+    public SessionDTO registerVote(@RequestBody VoteDTO vote, @PathVariable("agendaId") String agendaId) {
         try {
             return appService.registerVote(vote, agendaId);
         } catch (ClosedSessionException e) {
@@ -56,7 +51,7 @@ public class AppController {
     }
 
     @RequestMapping(value = "/result/{agendaId}", method = RequestMethod.GET)
-    public AgendaResult getAgendaResult(@PathParam("agendaId") String agendaId) {
+    public AgendaResult getAgendaResult(@PathVariable("agendaId") String agendaId) {
         return appService.getAgendaResult(agendaId);
     }
 }
