@@ -17,23 +17,23 @@ public class SessionController {
     @Autowired
     private SessionService sessionService;
 
-    @RequestMapping(value = "/", method = RequestMethod.POST)
-    private Session openSession(@RequestBody Session session) {
+    @RequestMapping(value = "/{agendaId}", method = RequestMethod.GET)
+    private Session getSessionByAgendaId(@PathVariable("agendaId") String agendaId) {
         try {
-            return sessionService.openSession(session);
-        } catch (OpenedSessionException | ClosedSessionException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, e.getMessage(), e);
-        }
-    }
-
-    @RequestMapping(value = "/{agendaId}", method = RequestMethod.POST)
-    private Session registerVote(@RequestBody Vote vote, @PathVariable("agendaId") String agendaId) {
-        try {
-            return sessionService.registerVote(vote, agendaId);
-        } catch (SessionNotFoundException | ClosedSessionException e) {
+            return sessionService.getSessionByAgendaId(agendaId);
+        } catch (SessionNotFoundException e) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
+    }
+
+    @RequestMapping(value = "/", method = RequestMethod.POST)
+    private Session createSession(@RequestBody Session session) {
+        return sessionService.createSession(session);
+    }
+
+    @RequestMapping(value = "/", method = RequestMethod.PUT)
+    private Session updateSession(@RequestBody Session session) {
+        return sessionService.updateSession(session);
     }
 }

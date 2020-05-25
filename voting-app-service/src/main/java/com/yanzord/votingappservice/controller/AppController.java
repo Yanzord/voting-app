@@ -4,9 +4,7 @@ import com.yanzord.votingappservice.dto.AgendaDTO;
 import com.yanzord.votingappservice.dto.AgendaResult;
 import com.yanzord.votingappservice.dto.SessionDTO;
 import com.yanzord.votingappservice.dto.VoteDTO;
-import com.yanzord.votingappservice.exception.ClosedSessionException;
-import com.yanzord.votingappservice.exception.FinishedAgendaException;
-import com.yanzord.votingappservice.exception.UnknownAgendaStatusException;
+import com.yanzord.votingappservice.exception.*;
 import com.yanzord.votingappservice.service.AppService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,10 +23,10 @@ public class AppController {
     }
 
     @RequestMapping(value = "/session", method = RequestMethod.POST)
-    public SessionDTO openSession(@RequestBody SessionDTO session) {
+    public SessionDTO createSession(@RequestBody SessionDTO session) {
         try {
-            return appService.openSession(session);
-        } catch (FinishedAgendaException | UnknownAgendaStatusException e) {
+            return appService.createSession(session);
+        } catch (SessionException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
@@ -38,7 +36,7 @@ public class AppController {
     public SessionDTO registerVote(@RequestBody VoteDTO vote, @PathVariable("agendaId") String agendaId) {
         try {
             return appService.registerVote(vote, agendaId);
-        } catch (ClosedSessionException | FinishedAgendaException e) {
+        } catch (ClosedSessionException | FinishedAgendaException | VoteException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
@@ -46,6 +44,11 @@ public class AppController {
 
     @RequestMapping(value = "/result/{agendaId}", method = RequestMethod.GET)
     public AgendaResult getAgendaResult(@PathVariable("agendaId") String agendaId) {
-        return appService.getAgendaResult(agendaId);
+        try {
+            return appService.getAgendaResult(agendaId);
+        } catch (NewAgendaException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
     }
 }

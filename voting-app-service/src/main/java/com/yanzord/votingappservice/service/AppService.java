@@ -1,16 +1,18 @@
 package com.yanzord.votingappservice.service;
 
 import com.yanzord.votingappservice.dto.*;
-import com.yanzord.votingappservice.exception.FinishedAgendaException;
-import com.yanzord.votingappservice.exception.ClosedSessionException;
-import com.yanzord.votingappservice.exception.UnknownAgendaStatusException;
+import com.yanzord.votingappservice.exception.*;
 import com.yanzord.votingappservice.feign.VotingAgendaClient;
 import com.yanzord.votingappservice.feign.VotingSessionClient;
+import feign.FeignException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AppService {
@@ -20,58 +22,75 @@ public class AppService {
     private VotingSessionClient votingSessionClient;
 
     public AgendaDTO registerAgenda(AgendaDTO agenda) {
+        agenda.setStatus(AgendaStatus.NEW);
         return votingAgendaClient.registerAgenda(agenda);
     }
 
-    public SessionDTO openSession(SessionDTO session) throws FinishedAgendaException, UnknownAgendaStatusException {
-        AgendaDTO agenda = votingAgendaClient.getAgendaById(session.getAgendaId());
+    public SessionDTO createSession(SessionDTO session) throws SessionException {
+        try {
+            votingSessionClient.getSessionByAgendaId(session.getAgendaId());
+        } catch (FeignException.NotFound e) {
+            LocalDateTime startDate = LocalDateTime.now();
+            session.setStartDate(startDate);
 
-        switch(agenda.getStatus()) {
-            case NEW: {
-                LocalDateTime startDate = LocalDateTime.now();
-                session.setStartDate(startDate);
+            LocalDateTime endDate = session.getStartDate().plusMinutes(session.getDuration());
+            session.setEndDate(endDate);
+            session.setStatus(SessionStatus.OPENED);
 
-                return votingSessionClient.openSession(session);
-            }
-            case FINISHED: {
-                throw new FinishedAgendaException("Agenda is finished, can't open session.");
-            }
-            default: {
-                throw new UnknownAgendaStatusException("Unknown agenda status.");
-            }
+            if (session.getDuration() == 0)
+                session.setDuration(1);
+
+            return votingSessionClient.createSession(session);
         }
+
+        throw new SessionException();
     }
 
-    public SessionDTO registerVote(VoteDTO vote, String agendaId) throws ClosedSessionException, FinishedAgendaException {
-        SessionDTO sessionDTO = votingSessionClient.registerVote(vote, agendaId);
+    public SessionDTO registerVote(VoteDTO vote, String agendaId) throws FinishedAgendaException, VoteException, ClosedSessionException {
+        SessionDTO session = votingSessionClient.getSessionByAgendaId(agendaId);
 
-        if(sessionDTO.getStatus().equals(SessionStatus.CLOSED)) {
+        if (LocalDateTime.now().isAfter(session.getEndDate())) {
+            session.setStatus(SessionStatus.CLOSED);
+
             AgendaDTO agenda = votingAgendaClient.getAgendaById(agendaId);
 
-            switch(agenda.getStatus()) {
-                case NEW: {
-                    AgendaResult agendaResult = calculateAgendaResult(sessionDTO);
-
-                    agenda.setAgendaResult(agendaResult);
-                    agenda.setStatus(AgendaStatus.FINISHED);
-                    votingAgendaClient.updateAgenda(agenda);
-                }
-                case FINISHED: {
-                    throw new FinishedAgendaException("Agenda is finished and session is closed, can't register vote.");
-                }
+            if (agenda.getStatus() == AgendaStatus.FINISHED) {
+                throw new FinishedAgendaException();
             }
+
+            AgendaResult agendaResult = generateAgendaResult(session);
+
+            agenda.setAgendaResult(agendaResult);
+            agenda.setStatus(AgendaStatus.FINISHED);
+            votingAgendaClient.updateAgenda(agenda);
 
             throw new ClosedSessionException("Session is closed.");
         }
 
-        return sessionDTO;
+        List<VoteDTO> votes = Optional.ofNullable(session.getVotes())
+                .orElse(new ArrayList<>());
+
+        if (votes.stream().anyMatch(v -> v.getAssociateId().equals(vote.getAssociateId()))) {
+            throw new VoteException("Associate already voted.");
+        }
+
+        votes.add(vote);
+        session.setVotes(votes);
+
+        return votingSessionClient.updateSession(session);
     }
 
-    public AgendaResult getAgendaResult(String agendaId) {
-        return votingAgendaClient.getAgendaById(agendaId).getAgendaResult();
+    public AgendaResult getAgendaResult(String agendaId) throws NewAgendaException {
+        AgendaDTO agenda = votingAgendaClient.getAgendaById(agendaId);
+
+        if (agenda.getStatus().equals(AgendaStatus.NEW)) {
+            throw new NewAgendaException();
+        }
+
+        return agenda.getAgendaResult();
     }
 
-    public AgendaResult calculateAgendaResult(SessionDTO session) {
+    public AgendaResult generateAgendaResult(SessionDTO session) {
         List<VoteDTO> votes = session.getVotes();
 
         long totalUpVotes = votes.stream()
@@ -88,7 +107,7 @@ public class AppService {
             return new AgendaResult(totalUpVotes, totalDownVotes, result);
         }
 
-        if(totalDownVotes > totalUpVotes) {
+        if (totalDownVotes > totalUpVotes) {
             String result = VoteChoice.NAO.toString();
 
             return new AgendaResult(totalUpVotes, totalDownVotes, result);

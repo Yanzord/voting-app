@@ -31,11 +31,6 @@ public class AgendaController {
 
     @RequestMapping(value = "/", method = RequestMethod.PUT)
     public Agenda updateAgenda(@RequestBody Agenda updatedAgenda) {
-        try {
-            return agendaService.updateAgenda(updatedAgenda);
-        } catch (AgendaNotFoundException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, e.getMessage(), e);
-        }
+        return agendaService.updateAgenda(updatedAgenda);
     }
 }
