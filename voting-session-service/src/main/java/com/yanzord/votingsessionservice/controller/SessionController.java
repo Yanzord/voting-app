@@ -21,12 +21,9 @@ public class SessionController {
     private Session openSession(@RequestBody Session session) {
         try {
             return sessionService.openSession(session);
-        } catch (OpenedSessionException e) {
+        } catch (OpenedSessionException | ClosedSessionException e) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Session is already opened.", e);
-        } catch (ClosedSessionException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Session is closed", e);
+                    HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
@@ -34,9 +31,9 @@ public class SessionController {
     private Session registerVote(@RequestBody Vote vote, @PathVariable("agendaId") String agendaId) {
         try {
             return sessionService.registerVote(vote, agendaId);
-        } catch (SessionNotFoundException e) {
+        } catch (SessionNotFoundException | ClosedSessionException e) {
             throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Session not found.", e);
+                    HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
     }
 }

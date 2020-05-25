@@ -37,7 +37,7 @@ public class AppService {
                 throw new FinishedAgendaException("Agenda is finished, can't open session.");
             }
             default: {
-                throw new UnknownAgendaStatusException("Unknown agenda status. Agenda ID: " + agenda.getId());
+                throw new UnknownAgendaStatusException("Unknown agenda status.");
             }
         }
     }
@@ -61,7 +61,7 @@ public class AppService {
                 }
             }
 
-            throw new ClosedSessionException("Session for agenda ID " + agendaId + " is closed.");
+            throw new ClosedSessionException("Session is closed.");
         }
 
         return sessionDTO;

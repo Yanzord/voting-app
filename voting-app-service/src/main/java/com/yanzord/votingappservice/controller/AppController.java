@@ -28,12 +28,9 @@ public class AppController {
     public SessionDTO openSession(@RequestBody SessionDTO session) {
         try {
             return appService.openSession(session);
-        } catch (FinishedAgendaException e) {
+        } catch (FinishedAgendaException | UnknownAgendaStatusException e) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Agenda is finished, can't open session.", e);
-        } catch (UnknownAgendaStatusException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Unknown agenda status.", e);
+                    HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
@@ -41,12 +38,9 @@ public class AppController {
     public SessionDTO registerVote(@RequestBody VoteDTO vote, @PathVariable("agendaId") String agendaId) {
         try {
             return appService.registerVote(vote, agendaId);
-        } catch (ClosedSessionException e) {
+        } catch (ClosedSessionException | FinishedAgendaException e) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Session is finished, can't register vote.", e);
-        } catch (FinishedAgendaException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Agenda is finished, can't register vote.", e);
+                    HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 

@@ -16,13 +16,14 @@ public class AgendaService {
     @Autowired
     private AgendaRepository agendaRepository;
     private final Agenda DEFAULT_AGENDA = new Agenda("1", "Default description.", AgendaStatus.FINISHED);
+    private final String AGENDA_NOT_FOUND_MESSAGE = "Voting agenda not found.";
 
     @HystrixCommand(
             fallbackMethod = "defaultGetAgendaById",
             ignoreExceptions = { AgendaNotFoundException.class })
     public Agenda getAgendaById(String id) throws AgendaNotFoundException {
         return agendaRepository.getAgendaById(id)
-                .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
+                .orElseThrow(() -> new AgendaNotFoundException(AGENDA_NOT_FOUND_MESSAGE));
     }
 
     @HystrixCommand(fallbackMethod = "defaultAddAgenda")
@@ -37,7 +38,7 @@ public class AgendaService {
     public Agenda updateAgenda(Agenda updatedAgenda) throws AgendaNotFoundException {
         String id = updatedAgenda.getId();
         Agenda agenda = agendaRepository.getAgendaById(id)
-                .orElseThrow(() -> new AgendaNotFoundException("Voting agenda not found. ID: " + id));
+                .orElseThrow(() -> new AgendaNotFoundException(AGENDA_NOT_FOUND_MESSAGE));
 
         agenda.setAgendaResult(updatedAgenda.getAgendaResult());
         agenda.setStatus(updatedAgenda.getStatus());

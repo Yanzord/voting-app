@@ -23,17 +23,17 @@ public class SessionService {
 
     @HystrixCommand(
             fallbackMethod = "defaultOpenSession",
-            ignoreExceptions = { OpenedSessionException.class, ClosedSessionException.class })
+            ignoreExceptions = {OpenedSessionException.class, ClosedSessionException.class})
     public Session openSession(Session session) throws OpenedSessionException, ClosedSessionException {
         Optional<Session> optionalSession = sessionRepository.getSessionByAgendaId(session.getAgendaId());
 
-        if(optionalSession.isPresent()) {
-            switch(optionalSession.get().getStatus()) {
+        if (optionalSession.isPresent()) {
+            switch (optionalSession.get().getStatus()) {
                 case OPENED: {
-                    throw new OpenedSessionException("Session is already opened. Session ID: " + session.getId());
+                    throw new OpenedSessionException("Session is already opened.");
                 }
                 case CLOSED: {
-                    throw new ClosedSessionException("Session is closed. Session ID: " + session.getId());
+                    throw new ClosedSessionException("Session is closed.");
                 }
             }
         }
@@ -47,22 +47,26 @@ public class SessionService {
 
     @HystrixCommand(
             fallbackMethod = "defaultRegisterVote",
-            ignoreExceptions = { SessionNotFoundException.class })
-    public Session registerVote(Vote vote, String agendaId) throws SessionNotFoundException {
+            ignoreExceptions = {SessionNotFoundException.class})
+    public Session registerVote(Vote vote, String agendaId) throws SessionNotFoundException, ClosedSessionException {
         Session session = sessionRepository.getSessionByAgendaId(agendaId)
-                .orElseThrow(() -> new SessionNotFoundException("Session not found for Agenda ID: " + agendaId));
+                .orElseThrow(() -> new SessionNotFoundException("Session not found."));
 
-        if(LocalDateTime.now().isAfter(session.getEndDate())) {
-            session.setStatus(SessionStatus.CLOSED);
+        if (session.getStatus().equals(SessionStatus.OPENED)) {
+            if (LocalDateTime.now().isAfter(session.getEndDate())) {
+                session.setStatus(SessionStatus.CLOSED);
+                return sessionRepository.save(session);
+            }
+
+            List<Vote> votes = Optional.ofNullable(session.getVotes())
+                    .orElse(new ArrayList<>());
+
+            votes.add(vote);
+            session.setVotes(votes);
             return sessionRepository.save(session);
         }
 
-        List<Vote> votes = Optional.ofNullable(session.getVotes())
-                .orElse(new ArrayList<>());
-
-        votes.add(vote);
-        session.setVotes(votes);
-        return sessionRepository.save(session);
+        throw new ClosedSessionException("Session is closed. Can't register vote.");
     }
 
     public Session defaultOpenSession(Session session) {

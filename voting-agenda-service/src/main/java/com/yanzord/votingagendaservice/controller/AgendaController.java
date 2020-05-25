@@ -13,7 +13,6 @@ import org.springframework.web.server.ResponseStatusException;
 public class AgendaController {
     @Autowired
     private AgendaService agendaService;
-    private static final String NOT_FOUND_MESSAGE = "Agenda not found.";
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public Agenda registerAgenda(@RequestBody Agenda agenda) {
@@ -26,7 +25,7 @@ public class AgendaController {
             return agendaService.getAgendaById(id);
         } catch (AgendaNotFoundException e) {
             throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, NOT_FOUND_MESSAGE, e);
+                    HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
     }
 
@@ -36,7 +35,7 @@ public class AgendaController {
             return agendaService.updateAgenda(updatedAgenda);
         } catch (AgendaNotFoundException e) {
             throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, NOT_FOUND_MESSAGE, e);
+                    HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
     }
 }
