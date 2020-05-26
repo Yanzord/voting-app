@@ -14,6 +14,11 @@ public class SessionService {
     private SessionRepository sessionRepository;
     private final Session DEFAULT_SESSION = new Session("1", "1", 1, SessionStatus.CLOSED);
 
+    @HystrixCommand(fallbackMethod = "defaultSaveSession")
+    public Session saveSession(Session session) {
+        return sessionRepository.save(session);
+    }
+
     @HystrixCommand(
             fallbackMethod = "defaultGetSessionByAgendaId",
             ignoreExceptions = { SessionNotFoundException.class })
@@ -22,25 +27,11 @@ public class SessionService {
                 .orElseThrow(SessionNotFoundException::new);
     }
 
-    @HystrixCommand(fallbackMethod = "defaultCreateSession")
-    public Session createSession(Session session) {
-        return sessionRepository.save(session);
-    }
-
-    @HystrixCommand(fallbackMethod = "defaultUpdateSession")
-    public Session updateSession(Session session) {
-        return sessionRepository.save(session);
+    public Session defaultSaveSession(Session session) {
+        return DEFAULT_SESSION;
     }
 
     public Session defaultGetSessionByAgendaId(String agendaId) {
-        return DEFAULT_SESSION;
-    }
-
-    public Session defaultCreateSession(Session session) {
-        return DEFAULT_SESSION;
-    }
-
-    public Session defaultUpdateSession(Session session) {
         return DEFAULT_SESSION;
     }
 }

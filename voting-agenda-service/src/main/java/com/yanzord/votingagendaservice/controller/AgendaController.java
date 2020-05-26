@@ -14,9 +14,9 @@ public class AgendaController {
     @Autowired
     private AgendaService agendaService;
 
-    @RequestMapping(value = "/", method = RequestMethod.POST)
-    public Agenda registerAgenda(@RequestBody Agenda agenda) {
-        return agendaService.registerAgenda(agenda);
+    @RequestMapping(value = "/", method = RequestMethod.PUT)
+    public Agenda saveAgenda(@RequestBody Agenda agenda) {
+        return agendaService.saveAgenda(agenda);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
@@ -27,10 +27,5 @@ public class AgendaController {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
-    }
-
-    @RequestMapping(value = "/", method = RequestMethod.PUT)
-    public Agenda updateAgenda(@RequestBody Agenda updatedAgenda) {
-        return agendaService.updateAgenda(updatedAgenda);
     }
 }

@@ -14,6 +14,11 @@ public class SessionController {
     @Autowired
     private SessionService sessionService;
 
+    @RequestMapping(value = "/", method = RequestMethod.PUT)
+    private Session saveSession(@RequestBody Session session) {
+        return sessionService.saveSession(session);
+    }
+
     @RequestMapping(value = "/{agendaId}", method = RequestMethod.GET)
     private Session getSessionByAgendaId(@PathVariable("agendaId") String agendaId) {
         try {
@@ -22,15 +27,5 @@ public class SessionController {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
-    }
-
-    @RequestMapping(value = "/", method = RequestMethod.POST)
-    private Session createSession(@RequestBody Session session) {
-        return sessionService.createSession(session);
-    }
-
-    @RequestMapping(value = "/", method = RequestMethod.PUT)
-    private Session updateSession(@RequestBody Session session) {
-        return sessionService.updateSession(session);
     }
 }

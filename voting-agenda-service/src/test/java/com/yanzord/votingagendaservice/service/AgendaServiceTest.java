@@ -23,11 +23,14 @@ public class AgendaServiceTest {
     private AgendaService agendaService;
 
     @Test
-    public void shouldRegisterAgenda() {
-        Agenda expected = new Agenda("1", "New agenda.", AgendaStatus.NEW);
+    public void shouldSaveAgenda() {
+        String agendaId = "1";
+        String description = "New agenda.";
+
+        Agenda expected = new Agenda(agendaId, description, AgendaStatus.NEW);
         Mockito.when(agendaRepository.save(expected)).thenReturn(expected);
 
-        Agenda actual = agendaService.registerAgenda(expected);
+        Agenda actual = agendaService.saveAgenda(expected);
 
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getDescription(), actual.getDescription());
@@ -36,12 +39,13 @@ public class AgendaServiceTest {
 
     @Test
     public void shouldGetAgendaById() throws AgendaNotFoundException {
-        String fakeId = "1";
+        String agendaId = "1";
+        String description = "New agenda.";
 
-        Agenda expected = new Agenda(fakeId, "New agenda.", AgendaStatus.NEW);
-        Mockito.when(agendaRepository.getAgendaById(fakeId)).thenReturn(Optional.of(expected));
+        Agenda expected = new Agenda(agendaId, description, AgendaStatus.NEW);
+        Mockito.when(agendaRepository.getAgendaById(agendaId)).thenReturn(Optional.of(expected));
 
-        Agenda actual = agendaService.getAgendaById(fakeId);
+        Agenda actual = agendaService.getAgendaById(agendaId);
 
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getDescription(), actual.getDescription());
@@ -49,32 +53,11 @@ public class AgendaServiceTest {
     }
 
     @Test
-    public void shouldNotReturnAgendaWhenAgendaIsNotFound() {
-        String fakeId = "1";
+    public void shouldThrowExceptionWhenAgendaIsNotFound() {
+        String agendaId = "1";
 
-        Mockito.when(agendaRepository.getAgendaById(fakeId)).thenReturn(Optional.empty());
+        Mockito.when(agendaRepository.getAgendaById(agendaId)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(AgendaNotFoundException.class, () -> agendaService.getAgendaById(fakeId));
-
-        assertNotNull(exception);
-    }
-
-    @Test
-    public void shouldUpdateAgenda() {
-        String fakeId = "1";
-        String fakeDescription = "Fake agenda.";
-
-        AgendaResult agendaResult = new AgendaResult(5, 3, "SIM");
-        Agenda expected = new Agenda(fakeId, fakeDescription, AgendaStatus.FINISHED);
-        expected.setAgendaResult(agendaResult);
-
-        Mockito.when(agendaRepository.save(expected)).thenReturn(expected);
-
-        Agenda actual = agendaService.updateAgenda(expected);
-
-        assertEquals(expected.getId(), actual.getId());
-        assertEquals(expected.getDescription(), actual.getDescription());
-        assertEquals(expected.getStatus(), actual.getStatus());
-        assertEquals(expected.getAgendaResult().getResult(), actual.getAgendaResult().getResult());
+        assertThrows(AgendaNotFoundException.class, () -> agendaService.getAgendaById(agendaId));
     }
 }
