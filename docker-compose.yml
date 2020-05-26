@@ -1,0 +1,39 @@
+version: '3'
+services:
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+
+  eurekaserver:
+    image: springcloud/eureka:latest
+    ports:
+      - 8761:8761
+
+  agenda-service:
+    image: voting-agenda-service
+    ports:
+      - 8081:8081
+    depends_on:
+      - mongodb
+      - eurekaserver
+
+  session-service:
+    image: voting-session-service
+    ports:
+      - 8082:8082
+    depends_on:
+      - mongodb
+      - eurekaserver
+      - agenda-service
+
+  app-service:
+    image: voting-app-service
+    ports:
+      - 8080:8080
+    depends_on:
+      - mongodb
+      - eurekaserver
+      - agenda-service
+      - session-service
