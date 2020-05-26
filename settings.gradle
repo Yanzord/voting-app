@@ -1,4 +1,0 @@
-include 'voting-agenda-service'
-include 'voting-session-service'
-include 'voting-app-service'
-
