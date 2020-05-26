@@ -27,6 +27,11 @@ public class Session {
         this.status = status;
     }
 
+    public Session(String agendaId, long duration) {
+        this.agendaId = agendaId;
+        this.duration = duration;
+    }
+
     public String getId() {
         return id;
     }

@@ -1,16 +1,23 @@
 package com.yanzord.votingappservice.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yanzord.votingappservice.model.Agenda;
 import com.yanzord.votingappservice.model.AgendaResult;
 import com.yanzord.votingappservice.model.Session;
 import com.yanzord.votingappservice.model.Vote;
 import com.yanzord.votingappservice.exception.*;
 import com.yanzord.votingappservice.service.AppService;
+import feign.FeignException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/app")
@@ -19,6 +26,16 @@ public class AppController {
 
     @Autowired
     private AppService appService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @ExceptionHandler(FeignException.NotFound.class)
+    public Map<String, Object> handleFeignNotFoundException(FeignException e, HttpServletResponse response) throws JsonProcessingException {
+        logger.error("Error occurred trying to make feign request. Message: " + e.getMessage());
+        response.setStatus(e.status());
+        return objectMapper.readValue(e.contentUTF8(), new TypeReference<Map<String,Object>>(){});
+    }
 
     @RequestMapping(value = "/agenda", method = RequestMethod.POST)
     public Agenda registerAgenda(@RequestBody Agenda agenda) {

@@ -40,7 +40,7 @@ public class AppService {
 
     @HystrixCommand(
             fallbackMethod = "defaultCreateSession",
-            ignoreExceptions = { CreatedSessionException.class, FeignException.NotFound.class, FeignException.BadRequest.class })
+            ignoreExceptions = { CreatedSessionException.class, FeignException.NotFound.class })
     public Session createSession(Session session) throws CreatedSessionException {
         votingAgendaClient.getAgendaById(session.getAgendaId());
 
@@ -69,7 +69,7 @@ public class AppService {
     @HystrixCommand(
             fallbackMethod = "defaultRegisterVote",
             ignoreExceptions = { VoteException.class, ClosedSessionException.class,
-                    InvalidCpfException.class, FeignException.NotFound.class, FeignException.BadRequest.class })
+                    InvalidCpfException.class, FeignException.NotFound.class })
     public Session registerVote(Vote vote, String agendaId) throws VoteException, ClosedSessionException, InvalidCpfException {
         Session session = votingSessionClient.getSessionByAgendaId(agendaId);
 
@@ -121,7 +121,7 @@ public class AppService {
 
     @HystrixCommand(
             fallbackMethod = "defaultAgendaResult",
-            ignoreExceptions = { NewAgendaException.class, FeignException.NotFound.class, FeignException.BadRequest.class })
+            ignoreExceptions = { NewAgendaException.class, FeignException.NotFound.class })
     public AgendaResult getAgendaResult(String agendaId) throws NewAgendaException {
         Agenda agenda = votingAgendaClient.getAgendaById(agendaId);
 
@@ -133,18 +133,13 @@ public class AppService {
                     return finishAgenda(agenda, generateAgendaResult(session));
                 }
 
-                if (session.getStatus().equals(SessionStatus.OPENED)) {
-                    if (LocalDateTime.now().isAfter(session.getEndDate())) {
-                        closeSession(session);
-                        return finishAgenda(agenda, generateAgendaResult(session));
-                    }
-
-                    logger.debug("Session for agenda is still open, requested results will not be show. Agenda ID: " + agendaId);
-                    throw new NewAgendaException("Agenda is new and session is still opened.");
+                if (LocalDateTime.now().isAfter(session.getEndDate())) {
+                    closeSession(session);
+                    return finishAgenda(agenda, generateAgendaResult(session));
                 }
 
-                logger.debug("No session found for requested agenda results. Agenda ID: " + agendaId);
-                throw new NewAgendaException("No session found for requested agenda results.");
+                logger.debug("Session for agenda is still open, requested results will not be show. Agenda ID: " + agendaId);
+                throw new NewAgendaException("Agenda is new and session is still opened.");
             }
         }
 
