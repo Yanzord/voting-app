@@ -1,14 +1,14 @@
-package com.yanzord.votingappservice.dto;
+package com.yanzord.votingappservice.model;
 
-public class AgendaDTO {
+public class Agenda {
     private String id;
     private String description;
     private AgendaResult agendaResult;
     private AgendaStatus status;
 
-    public AgendaDTO() {}
+    public Agenda() {}
 
-    public AgendaDTO(String id, String description, AgendaStatus status) {
+    public Agenda(String id, String description, AgendaStatus status) {
         this.id = id;
         this.description = description;
         this.status = status;

@@ -1,7 +1,7 @@
 package com.yanzord.votingappservice.exception;
 
-public class SessionException extends Throwable {
-    public SessionException() {
+public class CreatedSessionException extends Throwable {
+    public CreatedSessionException() {
         super("Session already created.");
     }
 }

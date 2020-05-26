@@ -1,20 +1,20 @@
-package com.yanzord.votingappservice.dto;
+package com.yanzord.votingappservice.model;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class SessionDTO {
+public class Session {
     private String id;
     private String agendaId;
     private long duration;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private List<VoteDTO> votes;
+    private List<Vote> votes;
     private SessionStatus status;
 
-    public SessionDTO() {}
+    public Session() {}
 
-    public SessionDTO(String agendaId, long duration, LocalDateTime startDate) {
+    public Session(String agendaId, long duration, LocalDateTime startDate) {
         this.agendaId = agendaId;
         this.duration = duration;
         this.startDate = startDate;
@@ -60,11 +60,11 @@ public class SessionDTO {
         this.endDate = endDate;
     }
 
-    public List<VoteDTO> getVotes() {
+    public List<Vote> getVotes() {
         return votes;
     }
 
-    public void setVotes(List<VoteDTO> votes) {
+    public void setVotes(List<Vote> votes) {
         this.votes = votes;
     }
 

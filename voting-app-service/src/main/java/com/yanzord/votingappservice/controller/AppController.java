@@ -1,9 +1,9 @@
 package com.yanzord.votingappservice.controller;
 
-import com.yanzord.votingappservice.dto.AgendaDTO;
-import com.yanzord.votingappservice.dto.AgendaResult;
-import com.yanzord.votingappservice.dto.SessionDTO;
-import com.yanzord.votingappservice.dto.VoteDTO;
+import com.yanzord.votingappservice.model.Agenda;
+import com.yanzord.votingappservice.model.AgendaResult;
+import com.yanzord.votingappservice.model.Session;
+import com.yanzord.votingappservice.model.Vote;
 import com.yanzord.votingappservice.exception.*;
 import com.yanzord.votingappservice.service.AppService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,22 +18,22 @@ public class AppController {
     private AppService appService;
 
     @RequestMapping(value = "/agenda", method = RequestMethod.POST)
-    public AgendaDTO registerAgenda(@RequestBody AgendaDTO agenda) {
+    public Agenda registerAgenda(@RequestBody Agenda agenda) {
         return appService.registerAgenda(agenda);
     }
 
     @RequestMapping(value = "/session", method = RequestMethod.POST)
-    public SessionDTO createSession(@RequestBody SessionDTO session) {
+    public Session createSession(@RequestBody Session session) {
         try {
             return appService.createSession(session);
-        } catch (SessionException e) {
+        } catch (CreatedSessionException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
     @RequestMapping(value = "/session/{agendaId}", method = RequestMethod.POST)
-    public SessionDTO registerVote(@RequestBody VoteDTO vote, @PathVariable("agendaId") String agendaId) {
+    public Session registerVote(@RequestBody Vote vote, @PathVariable("agendaId") String agendaId) {
         try {
             return appService.registerVote(vote, agendaId);
         } catch (ClosedSessionException | VoteException | InvalidCpfException e) {

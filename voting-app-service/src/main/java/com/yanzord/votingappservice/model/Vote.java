@@ -1,13 +1,13 @@
-package com.yanzord.votingappservice.dto;
+package com.yanzord.votingappservice.model;
 
-public class VoteDTO {
+public class Vote {
     private String associateId;
     private String associateCPF;
     private VoteChoice voteChoice;
 
-    public VoteDTO() {}
+    public Vote() {}
 
-    public VoteDTO(String associateId, String associateCPF, VoteChoice voteChoice) {
+    public Vote(String associateId, String associateCPF, VoteChoice voteChoice) {
         this.associateId = associateId;
         this.associateCPF = associateCPF;
         this.voteChoice = voteChoice;

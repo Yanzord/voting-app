@@ -1,4 +1,4 @@
-package com.yanzord.votingappservice.dto;
+package com.yanzord.votingappservice.model;
 
 public class AgendaResult {
     private long totalUpVotes;
@@ -35,14 +35,5 @@ public class AgendaResult {
 
     public void setResult(String result) {
         this.result = result;
-    }
-
-    @Override
-    public String toString() {
-        return "Result{" +
-                "totalUpVotes=" + totalUpVotes +
-                ", totalDownVotes=" + totalDownVotes +
-                ", result='" + result + '\'' +
-                '}';
     }
 }
