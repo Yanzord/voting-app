@@ -1,6 +1,7 @@
 package com.yanzord.votingappservice.service;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.yanzord.votingappservice.model.*;
 import com.yanzord.votingappservice.exception.*;
 import com.yanzord.votingappservice.feign.CPFValidator;
@@ -23,12 +24,15 @@ public class AppService {
     private VotingSessionClient votingSessionClient;
     @Autowired
     private CPFValidator cpfValidator;
+    private final Session DEFAULT_SESSION = new Session("1", "1", 1, SessionStatus.CLOSED);
 
+    @HystrixCommand(fallbackMethod = "defaultRegisterAgenda")
     public Agenda registerAgenda(Agenda agenda) {
         agenda.setStatus(AgendaStatus.NEW);
         return votingAgendaClient.saveAgenda(agenda);
     }
 
+    @HystrixCommand(fallbackMethod = "defaultCreateSession", ignoreExceptions = { CreatedSessionException.class })
     public Session createSession(Session session) throws CreatedSessionException {
         try {
             votingSessionClient.getSessionByAgendaId(session.getAgendaId());
@@ -49,6 +53,9 @@ public class AppService {
         throw new CreatedSessionException();
     }
 
+    @HystrixCommand(
+            fallbackMethod = "defaultRegisterVote",
+            ignoreExceptions = { VoteException.class, ClosedSessionException.class, InvalidCpfException.class })
     public Session registerVote(Vote vote, String agendaId) throws VoteException, ClosedSessionException, InvalidCpfException {
         Session session = votingSessionClient.getSessionByAgendaId(agendaId);
 
@@ -85,6 +92,7 @@ public class AppService {
         }
     }
 
+    @HystrixCommand(fallbackMethod = "defaultAgendaResult", ignoreExceptions = { NewAgendaException.class})
     public AgendaResult getAgendaResult(String agendaId) throws NewAgendaException {
         Agenda agenda = votingAgendaClient.getAgendaById(agendaId);
 
@@ -152,5 +160,21 @@ public class AppService {
     public void closeSession(Session session) {
         session.setStatus(SessionStatus.CLOSED);
         votingSessionClient.saveSession(session);
+    }
+
+    public Agenda defaultRegisterAgenda(Agenda agenda) {
+        return new Agenda("1", "This is a default agenda.", AgendaStatus.FINISHED);
+    }
+
+    public Session defaultCreateSession(Session session) {
+        return DEFAULT_SESSION;
+    }
+
+    public Session defaultRegisterVote(Vote vote, String agendaId) {
+        return DEFAULT_SESSION;
+    }
+
+    public AgendaResult defaultAgendaResult(String agendaId) {
+        return new AgendaResult(0, 0, "DEFAULT");
     }
 }

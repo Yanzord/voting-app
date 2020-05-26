@@ -19,9 +19,7 @@ public class SessionService {
         return sessionRepository.save(session);
     }
 
-    @HystrixCommand(
-            fallbackMethod = "defaultGetSessionByAgendaId",
-            ignoreExceptions = { SessionNotFoundException.class })
+    @HystrixCommand(fallbackMethod = "defaultGetSessionByAgendaId", ignoreExceptions = { SessionNotFoundException.class })
     public Session getSessionByAgendaId(String agendaId) throws SessionNotFoundException {
         return sessionRepository.getSessionByAgendaId(agendaId)
                 .orElseThrow(SessionNotFoundException::new);

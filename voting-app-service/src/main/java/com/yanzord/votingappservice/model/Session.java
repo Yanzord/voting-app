@@ -20,6 +20,13 @@ public class Session {
         this.startDate = startDate;
     }
 
+    public Session(String id, String agendaId, long duration, SessionStatus status) {
+        this.id = id;
+        this.agendaId = agendaId;
+        this.duration = duration;
+        this.status = status;
+    }
+
     public String getId() {
         return id;
     }

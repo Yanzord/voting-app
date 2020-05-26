@@ -31,7 +31,6 @@ dependencies {
             'org.springframework.boot:spring-boot-starter-actuator',
             'io.github.openfeign:feign-jackson:9.3.1',
             'com.fasterxml.jackson.core:jackson-core:2.11.0',
-            'javax.inject:javax.inject:1'
     ])
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {

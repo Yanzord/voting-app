@@ -19,9 +19,7 @@ public class AgendaService {
         return agendaRepository.save(agenda);
     }
 
-    @HystrixCommand(
-            fallbackMethod = "defaultGetAgendaById",
-            ignoreExceptions = { AgendaNotFoundException.class })
+    @HystrixCommand(fallbackMethod = "defaultGetAgendaById", ignoreExceptions = { AgendaNotFoundException.class })
     public Agenda getAgendaById(String id) throws AgendaNotFoundException {
         return agendaRepository.getAgendaById(id)
                 .orElseThrow(AgendaNotFoundException::new);
