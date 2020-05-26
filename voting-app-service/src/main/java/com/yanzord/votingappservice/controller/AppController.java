@@ -36,7 +36,7 @@ public class AppController {
     public SessionDTO registerVote(@RequestBody VoteDTO vote, @PathVariable("agendaId") String agendaId) {
         try {
             return appService.registerVote(vote, agendaId);
-        } catch (ClosedSessionException | FinishedAgendaException | VoteException e) {
+        } catch (ClosedSessionException | VoteException | InvalidCpfException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }

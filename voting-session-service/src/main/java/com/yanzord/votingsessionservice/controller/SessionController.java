@@ -1,10 +1,7 @@
 package com.yanzord.votingsessionservice.controller;
 
-import com.yanzord.votingsessionservice.exception.ClosedSessionException;
 import com.yanzord.votingsessionservice.model.Session;
-import com.yanzord.votingsessionservice.exception.OpenedSessionException;
 import com.yanzord.votingsessionservice.exception.SessionNotFoundException;
-import com.yanzord.votingsessionservice.model.Vote;
 import com.yanzord.votingsessionservice.service.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

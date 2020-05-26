@@ -1,11 +1,12 @@
 package com.yanzord.votingappservice.service;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.yanzord.votingappservice.dto.*;
 import com.yanzord.votingappservice.exception.*;
+import com.yanzord.votingappservice.feign.CPFValidator;
 import com.yanzord.votingappservice.feign.VotingAgendaClient;
 import com.yanzord.votingappservice.feign.VotingSessionClient;
 import feign.FeignException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,8 @@ public class AppService {
     private VotingAgendaClient votingAgendaClient;
     @Autowired
     private VotingSessionClient votingSessionClient;
+    @Autowired
+    private CPFValidator cpfValidator;
 
     public AgendaDTO registerAgenda(AgendaDTO agenda) {
         agenda.setStatus(AgendaStatus.NEW);
@@ -46,23 +49,13 @@ public class AppService {
         throw new SessionException();
     }
 
-    public SessionDTO registerVote(VoteDTO vote, String agendaId) throws FinishedAgendaException, VoteException, ClosedSessionException {
+    public SessionDTO registerVote(VoteDTO vote, String agendaId) throws VoteException, ClosedSessionException, InvalidCpfException {
         SessionDTO session = votingSessionClient.getSessionByAgendaId(agendaId);
 
         if (LocalDateTime.now().isAfter(session.getEndDate())) {
-            session.setStatus(SessionStatus.CLOSED);
-
+            closeSession(session);
             AgendaDTO agenda = votingAgendaClient.getAgendaById(agendaId);
-
-            if (agenda.getStatus() == AgendaStatus.FINISHED) {
-                throw new FinishedAgendaException();
-            }
-
-            AgendaResult agendaResult = generateAgendaResult(session);
-
-            agenda.setAgendaResult(agendaResult);
-            agenda.setStatus(AgendaStatus.FINISHED);
-            votingAgendaClient.updateAgenda(agenda);
+            finishAgenda(agenda, generateAgendaResult(session));
 
             throw new ClosedSessionException("Session is closed.");
         }
@@ -74,24 +67,53 @@ public class AppService {
             throw new VoteException("Associate already voted.");
         }
 
-        votes.add(vote);
-        session.setVotes(votes);
+        try {
+            ObjectNode json = cpfValidator.validateCPF(vote.getAssociateCPF());
 
-        return votingSessionClient.updateSession(session);
+            VoteStatus status = VoteStatus.valueOf(json.get("status").asText());
+
+            if(status.equals(VoteStatus.UNABLE_TO_VOTE))
+                throw new InvalidCpfException("Associate is unable to vote.");
+
+            votes.add(vote);
+            session.setVotes(votes);
+
+            return votingSessionClient.updateSession(session);
+        } catch(FeignException.NotFound e) {
+            throw new InvalidCpfException("Invalid CPF.");
+        }
     }
 
     public AgendaResult getAgendaResult(String agendaId) throws NewAgendaException {
         AgendaDTO agenda = votingAgendaClient.getAgendaById(agendaId);
 
-        if (agenda.getStatus().equals(AgendaStatus.NEW)) {
-            throw new NewAgendaException();
+        if(agenda.getAgendaResult() == null) {
+            if(agenda.getStatus().equals(AgendaStatus.NEW)) {
+                SessionDTO session = votingSessionClient.getSessionByAgendaId(agendaId);
+
+                if(session.getStatus().equals(SessionStatus.CLOSED)) {
+                    return finishAgenda(agenda, generateAgendaResult(session));
+                }
+
+                if(session.getStatus().equals(SessionStatus.OPENED)) {
+                    if (LocalDateTime.now().isAfter(session.getEndDate())) {
+                        closeSession(session);
+                        return finishAgenda(agenda, generateAgendaResult(session));
+                    }
+
+                    throw new NewAgendaException();
+                }
+
+                throw new NewAgendaException();
+            }
         }
 
         return agenda.getAgendaResult();
     }
 
     public AgendaResult generateAgendaResult(SessionDTO session) {
-        List<VoteDTO> votes = session.getVotes();
+        List<VoteDTO> votes = Optional.ofNullable(session.getVotes())
+                .orElse(new ArrayList<>());
 
         long totalUpVotes = votes.stream()
                 .filter(vote -> vote.getVoteChoice().equals(VoteChoice.SIM))
@@ -116,5 +138,18 @@ public class AppService {
         String result = "EMPATE";
 
         return new AgendaResult(totalUpVotes, totalDownVotes, result);
+    }
+
+    public AgendaResult finishAgenda(AgendaDTO agenda, AgendaResult agendaResult) {
+        agenda.setAgendaResult(agendaResult);
+        agenda.setStatus(AgendaStatus.FINISHED);
+        votingAgendaClient.updateAgenda(agenda);
+
+        return agendaResult;
+    }
+
+    public void closeSession(SessionDTO session) {
+        session.setStatus(SessionStatus.CLOSED);
+        votingSessionClient.updateSession(session);
     }
 }

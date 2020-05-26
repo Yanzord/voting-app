@@ -19,7 +19,7 @@ public class SessionService {
             ignoreExceptions = { SessionNotFoundException.class })
     public Session getSessionByAgendaId(String agendaId) throws SessionNotFoundException {
         return sessionRepository.getSessionByAgendaId(agendaId)
-                .orElseThrow(() -> new SessionNotFoundException("Session not found."));
+                .orElseThrow(SessionNotFoundException::new);
     }
 
     @HystrixCommand(fallbackMethod = "defaultCreateSession")

@@ -29,7 +29,8 @@ dependencies {
             'org.springframework.cloud:spring-cloud-starter-openfeign',
             'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client',
             'org.springframework.boot:spring-boot-starter-actuator',
-            'org.json:json:20190722',
+            'io.github.openfeign:feign-jackson:9.3.1',
+            'com.fasterxml.jackson.core:jackson-core:2.11.0',
             'javax.inject:javax.inject:1'
     ])
 
