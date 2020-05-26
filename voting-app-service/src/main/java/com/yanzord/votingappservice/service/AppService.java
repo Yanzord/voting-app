@@ -8,6 +8,7 @@ import com.yanzord.votingappservice.feign.CPFValidator;
 import com.yanzord.votingappservice.feign.VotingAgendaClient;
 import com.yanzord.votingappservice.feign.VotingSessionClient;
 import feign.FeignException;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +19,18 @@ import java.util.Optional;
 
 @Service
 public class AppService {
+    private static final Logger logger = Logger.getLogger(AppService.class);
+    private final Session DEFAULT_SESSION = new Session("1", "1", 1, SessionStatus.CLOSED);
+
     @Autowired
     private VotingAgendaClient votingAgendaClient;
+
     @Autowired
     private VotingSessionClient votingSessionClient;
+
     @Autowired
     private CPFValidator cpfValidator;
-    private final Session DEFAULT_SESSION = new Session("1", "1", 1, SessionStatus.CLOSED);
+
 
     @HystrixCommand(fallbackMethod = "defaultRegisterAgenda")
     public Agenda registerAgenda(Agenda agenda) {
@@ -34,8 +40,9 @@ public class AppService {
 
     @HystrixCommand(fallbackMethod = "defaultCreateSession", ignoreExceptions = { CreatedSessionException.class })
     public Session createSession(Session session) throws CreatedSessionException {
+        Session sessionFound;
         try {
-            votingSessionClient.getSessionByAgendaId(session.getAgendaId());
+            sessionFound = votingSessionClient.getSessionByAgendaId(session.getAgendaId());
         } catch (FeignException.NotFound e) {
             LocalDateTime startDate = LocalDateTime.now();
             session.setStartDate(startDate);
@@ -50,6 +57,8 @@ public class AppService {
             return votingSessionClient.saveSession(session);
         }
 
+        logger.debug("Tried to create session that already exists. " +
+                "Session ID: " + sessionFound.getId() + "; Agenda ID: " + sessionFound.getAgendaId());
         throw new CreatedSessionException();
     }
 
@@ -64,14 +73,20 @@ public class AppService {
             Agenda agenda = votingAgendaClient.getAgendaById(agendaId);
             finishAgenda(agenda, generateAgendaResult(session));
 
+            logger.debug("Tried to vote in closed session. " +
+                    "Session ID: " + session.getId() + "; Agenda ID: " + session.getAgendaId());
+
             throw new ClosedSessionException();
         }
 
         List<Vote> votes = Optional.ofNullable(session.getVotes())
                 .orElse(new ArrayList<>());
 
-        if (votes.stream()
-                .anyMatch(v -> v.getAssociateId().equals(vote.getAssociateId()) || v.getAssociateCPF().equals(vote.getAssociateCPF()))) {
+        if (votes.stream().anyMatch(v -> v.getAssociateId().equals(vote.getAssociateId()) || v.getAssociateCPF().equals(vote.getAssociateCPF()))) {
+            logger.debug("Associate ID or CPF already voted. " +
+                    "Session ID: " + session.getId() + "; Agenda ID: " + session.getAgendaId() +
+                    "; associate ID: " + vote.getAssociateId() + "; associate CPF: " + vote.getAssociateCPF());
+
             throw new VoteException();
         }
 
@@ -80,14 +95,21 @@ public class AppService {
 
             VoteStatus status = VoteStatus.valueOf(json.get("status").asText());
 
-            if(status.equals(VoteStatus.UNABLE_TO_VOTE))
+            if(status.equals(VoteStatus.UNABLE_TO_VOTE)) {
+                logger.debug("CPF unable to vote. " + "Session ID: " + session.getId() +
+                        "; Agenda ID: " + session.getAgendaId() + "; associate CPF: " + vote.getAssociateCPF());
+
                 throw new InvalidCpfException("Associate is unable to vote.");
+            }
 
             votes.add(vote);
             session.setVotes(votes);
 
             return votingSessionClient.saveSession(session);
         } catch(FeignException.NotFound e) {
+            logger.debug("Invalid CPF. " + "Session ID: " + session.getId() +
+                    "; Agenda ID: " + session.getAgendaId() + "; associate CPF: " + vote.getAssociateCPF());
+
             throw new InvalidCpfException("Invalid CPF.");
         }
     }
@@ -110,9 +132,11 @@ public class AppService {
                         return finishAgenda(agenda, generateAgendaResult(session));
                     }
 
+                    logger.debug("Session for agenda is still open, requested results will not be shown. Agenda ID: " + agendaId);
                     throw new NewAgendaException();
                 }
 
+                logger.debug("No session found for requested agenda results. Agenda ID: " + agendaId);
                 throw new NewAgendaException();
             }
         }

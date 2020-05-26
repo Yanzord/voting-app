@@ -31,6 +31,7 @@ dependencies {
             'org.springframework.boot:spring-boot-starter-actuator',
             'io.github.openfeign:feign-jackson:9.3.1',
             'com.fasterxml.jackson.core:jackson-core:2.11.0',
+            'log4j:log4j:1.2.17',
     ])
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
